@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+<!--    <title><!DOCTYPE html>-->
+<!--        <html xmlns:th="http://www.thymeleaf.org">-->
+<!--        <head>-->
+<!--        <title th:if="${request.endpoint == 'public_timeline'}">Public Timeline</title>-->
+<!--    <title th:if="${request.endpoint == 'user_timeline'}">-->
+<!--        <span th:text="${profile_user.username}"></span>'s Timeline-->
+<!--    </title>-->
+<!--    <title th:if="${request.endpoint != 'public_timeline' and request.endpoint != 'user_timeline'}">-->
+<!--        My Timeline-->
+<!--    </title>-->
+</head>
+<body>
+<h2 th:text="aasdd"></h2>
+<!--<div th:if="${g.user}">-->
+<!--    <div th:if="${request.endpoint == 'user_timeline'}" class="followstatus">-->
+<!--        <span th:if="${g.user.user_id == profile_user.user_id}">This is you!</span>-->
+<!--        <span th:if="${followed}">-->
+<!--          You are currently following this user.-->
+<!--          <a class="unfollow" th:href="@{/unfollow_user(username=${profile_user.username})}">-->
+<!--            Unfollow user-->
+<!--          </a>.-->
+<!--        </span>-->
+<!--        <span th:if="${!followed}">-->
+<!--          You are not yet following this user.-->
+<!--          <a class="follow" th:href="@{/follow_user(username=${profile_user.username})}">-->
+<!--            Follow user-->
+<!--          </a>.-->
+<!--        </span>-->
+<!--    </div>-->
+<!--    <div th:if="${request.endpoint == 'timeline'}" class="twitbox">-->
+<!--        <h3>What's on your mind <span th:text="${g.user.username}"></span>?</h3>-->
+<!--        <form th:action="@{/add_message}" method="post">-->
+<!--            <p>-->
+<!--                <input type="text" name="text" size="60" />-->
+<!--                <input type="submit" value="Share" />-->
+<!--            </p>-->
+<!--        </form>-->
+<!--    </div>-->
+<!--</div>-->
+<ul class="messages">
+    <li th:each="message : ${messages}" th:if="${messages.size() > 0}">
+        <img th:src="${message.email}" />
+        <p>
+            <strong>
+<!--                <a th:href="@{/user_timeline(username=${message.username})}"-->
+<!--                   th:text="${message.username}">-->
+<!--                </a>-->
+            </strong>
+            <span th:text="${message.text}"></span>
+            <small>&mdash; <span th:text="${message.pub_date}"></span></small>
+        </p>
+    </li>
+    <li th:if="${messages.size() == 0}">
+        <em>There's no message so far.</em>
+    </li>
+</ul>
+</body>
+</html></title>
+</head>
+<body>
+
+</body>
+</html>

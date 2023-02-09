@@ -9,7 +9,7 @@
   {% endif %}
 {% endblock %}
 {% block body %}
-  <h2>{{ self.title() }}</h2>
+  <h2 th:text="'Hello, ' + ${messages} + '!'"></h2>
   {% if g.user %}
     {% if request.endpoint == 'user_timeline' %}
       <div class=followstatus>
