@@ -4,32 +4,32 @@ MiniTwit is a simple web application with the goal in mind to mimic the function
 ## Endpoints
 Web page consists of the following references:
 
-# '/'
+### '/'
 Shows a users timeline or if no user is logged in it will
 redirect to the public timeline.  This timeline shows the user's
 messages as well as all the messages of followed users.
 
-# '/public'
+### '/public'
 Displays the messages of all users.
 
-# '/<username>
+### '/`<username>`'
 Displays a users tweers.
 
-# '/<username>/follow
+### '/`<username>`/follow
 Adds the current user as follower of the given user.
 
-# '/<username>/unfollow
+### '/`<username>`/unfollow
 Removes the current user as follower of the given user.
 
-# '/add_message'
+### '/add_message'
 Registers a new message for the user.
 
-# '/login'
+### '/login'
 Logs the user in.
 
-# '/register
+### '/register
 Registers the user.
 
-# '/logout'
+### '/logout'
 Logs the user out.
 
