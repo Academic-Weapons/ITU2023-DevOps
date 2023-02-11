@@ -13,12 +13,12 @@
     <strong>Error:</strong>
     <span th:text="${error}"></span>
 </div>
-<form action="#" method="post">
+<form action="#" th:action="@{/login}" th:object="${login}" method="post" >
     <dl>
         <dt>Username:</dt>
-        <dd><input type="text" name="username" size="30"/></dd>
+        <dd><input type="text" name="username" size="30" th:value="${username}" /></dd>
         <dt>Password:</dt>
-        <dd><input type="password" name="password" size="30"/></dd>
+        <dd><input type="password" name="password" size="30" th:value="${password}"/></dd>
     </dl>
     <div class="actions">
         <input type="submit" value="Sign In"/>
