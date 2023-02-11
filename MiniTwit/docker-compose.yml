@@ -1,0 +1,6 @@
+version: '3'
+services:
+  minitwit:
+    image: minitwit
+    ports:
+      - "8080:8080"
