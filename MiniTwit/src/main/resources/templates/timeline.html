@@ -16,14 +16,8 @@
 
 </head>
 <body>
-
-<div th:insert="layout.html"></div>
-
-<div th:replace="layout :: body">
-    <h2>Welcome to MiniTwit</h2>
-</div>
-
-<h2 th:text="aasdd" class="test"></h2>
+<div  th:insert="layout.html :: header"></div>
+<h2 th:text="Title" class="test"></h2>
 <!--<div th:if="${g.user}">-->
 <!--    <div th:if="${request.endpoint == 'user_timeline'}" class="followstatus">-->
 <!--        <span th:if="${g.user.user_id == profile_user.user_id}">This is you!</span>-->

@@ -1,9 +1,6 @@
 package dk.itu.minitwit.database;
 
-import dk.itu.minitwit.domain.Message;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -70,26 +67,6 @@ public class SQLite {
                         row.put(rs.getMetaData().getColumnName(i), rs.getObject(i));
                     }
                     result.add(row);
-                }
-            }
-        }
-        return result;
-    }
-
-    public Message queryMessage(String query, List<Object> args) throws SQLException {
-        Message result = new Message();
-        try (Connection conn = connectDb();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
-            for (int i = 0; i < args.size(); i++) {
-                stmt.setObject(i + 1, args.get(i));
-            }
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    result.setMessageId(rs.getInt("message_id"));
-                    result.setAuthorId(rs.getInt("author_id"));
-                    result.setText(rs.getBoolean("text"));
-                    result.setPubDate(rs.getInt("pub_date"));
-                    result.setFlagged(rs.getInt("flagged"));
                 }
             }
         }

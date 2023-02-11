@@ -41,7 +41,7 @@ public class MiniTwitController {
 
     @GetMapping("/")
     public String timeline() {
-        return "default";
+        return "timeline.html";
     }
 
     @RequestMapping(value = "/public", method = RequestMethod.GET)
@@ -55,66 +55,49 @@ public class MiniTwitController {
             System.out.println("ERROR_"+e);
             return "Error";
         }
-//        Context context = new Context();
-//        context.setVariable("messages", messages);
+        System.out.println(messages);
         model.addAttribute("messages", messages);
         model.addAttribute("messagesSize",messages.size());
-//        System.out.println(messages);
         return "timeline.html";
     }
 
-//    @GetMapping("/public")
-//    public Object publicTimeline(Model model) throws IOException {
-//
-//        List<Object> args = new ArrayList<>();
-//        args.add(PER_PAGE);
-//        List<Map<String, Object>> messages;
-//        try {
-//            messages = sqLite.queryDb("select message.*, user.* from message, user where message.flagged = 0 and message.author_id = user.user_id order by message.pub_date desc limit ?", args);
-//        } catch (SQLException e) {
-//            return "Error";
-//        }
-//        Jinjava jinjava = new Jinjava();
-//        String template = Resources.toString(Resources.getResource("templates/timeline.html"), Charsets.UTF_8);
-//
-//        String renderedTemplate = jinjava.render(template, messages.get(0));
-//        return renderedTemplate;
-//    }
 
     @GetMapping("/{username}")
     public String userTimeLine(@PathVariable("username") String username) {
 
-        return "timeline";
+        return "timeline.html";
     }
 
     @GetMapping("/{username}/follow")
     public String followUser(@PathVariable("username") String username) {
-        return "user_timeline";
+        return "user_timeline.html";
     }
 
     @GetMapping("/{username}/unfollow")
     public String unfollowUser(@PathVariable("username") String username) {
-        return "user_timeline";
+        return "user_timeline.html";
     }
 
     @PostMapping("/add_message")
     public String addMessage() {
-        return "timeline";
+        return "timeline.html";
     }
 
-    @PostMapping("/login")
-    public String login() {
-        return "login";
+    @RequestMapping(value = "/login", method = RequestMethod.GET)
+    public String login(Model model) {
+        model.addAttribute("error","errormessage");
+        return "login.html";
     }
 
-    @PostMapping("/register")
-    public String register() {
-        return "register";
+    @RequestMapping(value = "/register", method = RequestMethod.GET)
+    public String register(Model model) {
+        model.addAttribute("error","errormessage");
+        return "register.html";
     }
 
     @PostMapping("/logout")
     public String logout() {
-        return "public_timeline";
+        return "public_timeline.html";
     }
 
 
