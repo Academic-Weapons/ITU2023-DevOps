@@ -73,6 +73,23 @@ public class SQLite {
         return result;
     }
 
+public int updateDb(String query, List<Object> args) throws SQLException {
+        List<Map<String, Object>> result = new ArrayList<>();
+        try (Connection conn = connectDb();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            for (int i = 0; i < args.size(); i++) {
+                stmt.setObject(i + 1, args.get(i));
+            }
+            try {
+                int rs = stmt.executeUpdate();
+                return rs;
+            } catch (Exception e) {
+                System.out.println("SQL err" + e.getMessage() + e.getStackTrace());
+            }
+        }
+        return -1;
+    }
+
 
     private Integer getUserId(String username) throws SQLException {
         Integer userId = null;
