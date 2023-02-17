@@ -26,7 +26,7 @@
     <h1>MiniTwit</h1>
     <div class="navigation">
             <div th:if="${user != 'false'}">
-              <a th:href="@{/timeline}">my timeline</a> |
+              <a th:href="@{/{user}(user=${user})}">my timeline</a> |
               <a th:href="@{/public}">public timeline</a> |
               <a th:href="@{/logout}">sign out [<span th:text="${user}">Username</span>]</a>
             </div>
@@ -58,16 +58,16 @@
         </div>
         <div th:if="${public == 'false' && user != 'false'}" class="followstatus">
             <span th:if="${self == 'true'}">This is you!</span>
-            <span th:if="${followed == 'true' && self == 'false'}">You are currently following this user.
-          <a class="unfollow" th:href="@{/public}">
+            <span th:if="${followed == 'true' && self != 'true'}">You are currently following this user.
+          <a class="unfollow" th:href="@{/{username}/unfollow(username=${username})}">
             Unfollow user
-          </a>.
+          </a>
         </span>
-            <span th:if="${followed == 'false'}">
+            <span th:if="${followed == 'false' && self != 'true'}">
           You are not yet following this user.
-          <a class="follow" th:href="@{/public}">
+          <a class="follow" th:href="@{/{username}/follow(username=${username})}">
             Follow user
-          </a>.
+          </a>
         </span>
         </div>
             <ul class="messages">

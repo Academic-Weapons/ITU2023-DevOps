@@ -86,12 +86,13 @@ public class MiniTwitController {
     public String userTimeLine(@PathVariable("username") String username, HttpServletRequest request, Model model) throws SQLException {
         HttpSession session = request.getSession(false);
         model.addAttribute("public", "false");
+        model.addAttribute("username", username);
         Boolean loggedIn = addUserToModel(model, session);
 
         if (loggedIn) {
             //TODO bliver kaldt af favicon ??
-            System.out.println("username: " + username);
-            if (username.equals( "favicon.ico")) return "redirect:/public";
+//            System.out.println("username: " + username);
+            if (username.equals("favicon.ico")) return "redirect:/public";
 
 
             int otherId = getUserID(username);
@@ -99,7 +100,6 @@ public class MiniTwitController {
                 model.addAttribute("self", "true");
                 model.addAttribute("followed", "false");
             } else {
-
 
                 List<Object> args = new ArrayList<>();
                 args.add(session.getAttribute("user_id"));
@@ -120,7 +120,6 @@ public class MiniTwitController {
         } catch (SQLException e) {
             System.out.println("ERROR_" + e);
             return "Error";
-
         }
 //        System.out.println(messages);
         addDatesAndGravatarURLs(messages);
@@ -161,13 +160,40 @@ public class MiniTwitController {
     }
 
     @GetMapping("/{username}/follow")
-    public String followUser(@PathVariable("username") String username) {
-        return "user_timeline.html";
+    public String followUser(@PathVariable("username") String username, HttpServletRequest request, Model model) throws SQLException {
+        HttpSession session = request.getSession(false);
+//        model.addAttribute("public", "false");
+        Boolean loggedIn = addUserToModel(model, session);
+
+        if (!loggedIn) return "redirect:/login";
+        Integer whomId = getUserID(username);
+        //TODO lav noget 404?
+        if (whomId ==  null) return "redirect:/public";
+
+        List<Object> args = new ArrayList<>();
+        args.add(session.getAttribute("user_id"));
+        args.add(whomId);
+        int result = sqLite.updateDb("insert into follower (who_id, whom_id) values (?, ?)", args);
+        return "redirect:/"+username;
     }
 
     @GetMapping("/{username}/unfollow")
-    public String unfollowUser(@PathVariable("username") String username) {
-        return "user_timeline.html";
+    public String unfollowUser(@PathVariable("username") String username, HttpServletRequest request, Model model) throws SQLException {
+        HttpSession session = request.getSession(false);
+//        model.addAttribute("public", "false");
+        Boolean loggedIn = addUserToModel(model, session);
+
+        if (!loggedIn) return "redirect:/login";
+        Integer whomId = getUserID(username);
+        //TODO lav noget 404?
+        if (whomId ==  null) return "redirect:/public";
+
+        List<Object> args = new ArrayList<>();
+        args.add(session.getAttribute("user_id"));
+        args.add(whomId);
+        int result = sqLite.updateDb("delete from follower where who_id=? and whom_id=?", args);
+        return "redirect:/"+username;
+
     }
 
     @PostMapping("/add_message")
