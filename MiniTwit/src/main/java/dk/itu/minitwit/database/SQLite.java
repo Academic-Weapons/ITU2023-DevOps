@@ -91,7 +91,7 @@ public int updateDb(String query, List<Object> args) throws SQLException {
     }
 
 
-    private Integer getUserId(String username) throws SQLException {
+    public Integer getUserId(String username) throws SQLException {
         Integer userId = null;
         List<Map<String, Object>> results = queryDb("select user_id from user where username = ?", List.of(username));
         if (!results.isEmpty()) {
