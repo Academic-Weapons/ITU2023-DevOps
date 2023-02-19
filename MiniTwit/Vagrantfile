@@ -1,6 +1,6 @@
 DO_BOX_URL = "https://github.com/devopsgroup-io/vagrant-digitalocean/raw/master/box/digital_ocean.box"
 PRIVATE_KEY_PATH = "id_rsa"
-TOKEN = "dop_v1_41016138361ff3ebf5035b1be68edde210e77cc42507bd7255a08660d6acb490"
+TOKEN = "dop_v1_f5570d3e10b2f1e8a202b8a251c6719bef5fe8b36d28402f2813402567ae8396"
 
 Vagrant.configure("2") do |config|
   config.vm.define "minitwit1" do |droplet|
@@ -18,7 +18,7 @@ Vagrant.configure("2") do |config|
 
     config.vm.provision "shell", inline: <<-SHELL
     sudo apt-get update
-    sudo apt-get install -y openjdk-17-jdk maven sqlite3 libsqlite3-dev
+    sudo apt-get install -y openjdk-17-jdk maven sqlite3 libsqlite3-dev tomcat9
     SHELL
     end
   end
