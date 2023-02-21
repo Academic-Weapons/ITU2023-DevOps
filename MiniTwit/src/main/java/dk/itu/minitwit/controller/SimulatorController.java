@@ -2,20 +2,24 @@ package dk.itu.minitwit.controller;
 
 import dk.itu.minitwit.database.SQLite;
 import dk.itu.minitwit.domain.Register;
+import dk.itu.minitwit.domain.SimData;
+import dk.itu.minitwit.domain.SimMessage;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-@Controller
+@RestController
 public class SimulatorController {
 
     @Autowired
@@ -39,12 +43,18 @@ public class SimulatorController {
         return null;
     }
 
-    @GetMapping("/latest")
+    @RequestMapping(
+            value = "/latest",
+            method = RequestMethod.GET,
+            produces = "application/json")
     public ResponseEntity<Object> getLatest() {
         return ResponseEntity.ok("{\"latest\":" + LATEST + "}");
     }
 
-    @PostMapping("/register")
+    @RequestMapping(
+            value = "/register",
+            method = RequestMethod.POST,
+            produces = "application/json")
     public ResponseEntity<Object> register(@RequestBody Register register,
                                            @RequestParam(value = "latest", required = false, defaultValue = "-1") int latest) throws SQLException {
         updateLatest(latest);
@@ -52,23 +62,26 @@ public class SimulatorController {
             return ResponseEntity.badRequest().body("{\"status\":400, \"error_msg\":\"You have to enter a username\"}");
         } else if (register.getEmail() == null || !register.getEmail().contains("@")) {
             return ResponseEntity.badRequest().body("{\"status\":400, \"error_msg\":\"You have to enter a valid email address\"}");
-        } else if (register.getPassword() == null) {
+        } else if (register.getPwd() == null) {
             return ResponseEntity.badRequest().body("{\"status\":400, \"error_msg\":\"You have to enter a password\"}");
-        } else if (sqLite.getUserId(register.getUsername()) != null) {
+        } else if (sqLite.getUserId(register.getUsername()) != -1) {
             return ResponseEntity.badRequest().body("{\"status\":400, \"error_msg\":\"The username is already taken\"}");
         } else {
-            List<Object> args = new ArrayList<>();
-            args.add(register.getUsername());
-            args.add(register.getEmail());
-            args.add(passwordEncoder.encode(register.getPassword()));
-            sqLite.updateDb("insert into user (username, email, pw_hash) values (?, ?, ?)", args);
+            try {
+                sqLite.register(register);
+            } catch (SQLException e) {
+                return internalErrorResponse(e);
+            }
             return ResponseEntity.noContent().build();
         }
     }
 
-    @GetMapping("/msgs")
-    public ResponseEntity<?> messages(HttpServletRequest request, @RequestParam(value = "no", defaultValue = "100", required = false) int noMsgs,
-                                      @RequestParam(value = "latest", required = false, defaultValue = "-1") int latest) throws SQLException {
+    @RequestMapping(
+            value = "/msgs",
+            method = RequestMethod.GET,
+            produces = "application/json")
+    public ResponseEntity<Object> messages(HttpServletRequest request, @RequestParam(value = "no", defaultValue = "100", required = false) int noMsgs,
+                                           @RequestParam(value = "latest", required = false, defaultValue = "-1") int latest) throws SQLException {
         updateLatest(latest);
 
         ResponseEntity<Object> notFromSimResponse = notReqFromSimulator(request);
@@ -76,44 +89,171 @@ public class SimulatorController {
             return notFromSimResponse;
         }
 
-        String query = "SELECT message.*, user.* FROM message, user WHERE message.flagged = 0 AND message.author_id = user.user_id ORDER BY message.pub_date DESC LIMIT ?";
-        List<Map<String, Object>> messages = sqLite.queryDb(query, List.of(new Object[]{noMsgs}));
-        return new ResponseEntity<>(messages, HttpStatus.OK);
+        try {
+            String query = "SELECT message.*, user.* FROM message, user WHERE message.flagged = 0 AND message.author_id = user.user_id ORDER BY message.pub_date DESC LIMIT ?";
+            List<SimMessage> messages = sqLite.queryDb(query, List.of(new Object[]{noMsgs}))
+                    .stream().map(msg -> {
+                        return new SimMessage((String) msg.get("text"), (int) msg.get("pub_date"), (String) msg.get("username"));
+                    }).collect(Collectors.toList());
+            return ResponseEntity.ok(messages);
+        } catch (SQLException e) {
+            return internalErrorResponse(e);
+        }
     }
 
-    @RequestMapping(value = "/msgs/{username}", method = {RequestMethod.GET, RequestMethod.POST})
-    public ResponseEntity<Object> messagesPerUser(HttpServletRequest request, @PathVariable("username") String username,
-                                                  @RequestParam(value = "no", defaultValue = "100", required = false) int noMsgs,
-                                                  @RequestParam(value = "latest", required = false, defaultValue = "-1") int latest) throws SQLException {
-
+    @RequestMapping(value = "/msgs/{username}",
+            method = RequestMethod.GET,
+            produces = "application/json")
+    public ResponseEntity<Object> messagesPerUserGet(HttpServletRequest request,
+                                                     @PathVariable("username") String username,
+                                                     @RequestParam(value = "no", defaultValue = "100", required = false) int noMsgs,
+                                                     @RequestParam(value = "latest", required = false, defaultValue = "-1") int latest) throws SQLException {
         updateLatest(latest);
+        ResponseEntity<Object> notFromSimResponse = notReqFromSimulator(request);
+        if (notFromSimResponse != null) {
+            return notFromSimResponse;
+        }
+        int userId = sqLite.getUserId(username);
+        if (userId == -1) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        String query = "SELECT message.*, user.* FROM message, user "
+                + "WHERE message.flagged = 0 AND user.user_id = message.author_id AND user.user_id = ? "
+                + "ORDER BY message.pub_date DESC LIMIT ?";
+        List<Object> args = new ArrayList<>();
+        args.add(userId);
+        args.add(noMsgs);
+        List<SimMessage> messages = sqLite.queryDb(query, args).stream().map(msg -> {
+            return new SimMessage((String) msg.get("text"), (int) msg.get("pub_date"), (String) msg.get("username"));
+        }).collect(Collectors.toList());
+        return ResponseEntity.ok(messages);
+    }
 
+    @RequestMapping(value = "/msgs/{username}",
+            method = RequestMethod.POST,
+            produces = "application/json")
+    public ResponseEntity<Object> messagesPerUserPost(HttpServletRequest request,
+                                                      @RequestBody SimData data,
+                                                      @PathVariable("username") String username,
+                                                      @RequestParam(value = "no", defaultValue = "100", required = false) int noMsgs,
+                                                      @RequestParam(value = "latest", required = false, defaultValue = "-1") int latest) throws SQLException {
+        updateLatest(latest);
+        ResponseEntity<Object> notFromSimResponse = notReqFromSimulator(request);
+        if (notFromSimResponse != null) {
+            return notFromSimResponse;
+        }
+        int userId = sqLite.getUserId(username);
+
+        try {
+            sqLite.insertMessage(userId, data);
+        } catch (SQLException e) {
+            return internalErrorResponse(e);
+        }
+        return ResponseEntity.noContent().build();
+    }
+
+    @RequestMapping(value = "/fllws/{username}",
+            method = RequestMethod.POST,
+            produces = "application/json")
+    public ResponseEntity<Object> followPost(HttpServletRequest request,
+                                             @RequestBody SimData data,
+                                             @PathVariable String username,
+                                             @RequestParam(value = "no", defaultValue = "100", required = false) int noMsgs,
+                                             @RequestParam(value = "latest", required = false, defaultValue = "-1") int latest) {
+        updateLatest(latest);
         ResponseEntity<Object> notFromSimResponse = notReqFromSimulator(request);
         if (notFromSimResponse != null) {
             return notFromSimResponse;
         }
 
-        if ("POST".equals(request.getMethod())) {
-            int userId = sqLite.getUserId(username);
+        int userId;
+        try {
+            userId = sqLite.getUserId(username);
             if (userId == 0) {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (SQLException e) {
+            return internalErrorResponse(e);
+        }
+
+
+        if (request.getMethod().equals("POST") && data.getFollow() != null) {
+            return follow(data, username, userId);
+        } else if (request.getMethod().equals("POST") && data.getUnfollow() != null) {
+            return unfollow(data, username, userId);
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+    @RequestMapping(value = "/fllws/{username}",
+            method = RequestMethod.GET,
+            produces = "application/json")
+    public ResponseEntity<Object> followGet(HttpServletRequest request,
+                                            @PathVariable String username,
+                                            @RequestParam(value = "no", defaultValue = "100", required = false) int noMsgs,
+                                            @RequestParam(value = "latest", required = false, defaultValue = "-1") int latest) {
+        updateLatest(latest);
+        ResponseEntity<Object> notFromSimResponse = notReqFromSimulator(request);
+        if (notFromSimResponse != null) {
+            return notFromSimResponse;
+        }
+
+        int userId;
+        try {
+            userId = sqLite.getUserId(username);
+            if (userId == 0) {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (SQLException e) {
+            return internalErrorResponse(e);
+        }
+        return follows(noMsgs, userId);
+    }
+
+    private static ResponseEntity<Object> internalErrorResponse(SQLException e) {
+        return ResponseEntity.internalServerError().body(e);
+    }
+
+    private ResponseEntity<Object> follow(SimData data, String username, int userId) {
+        try {
+            int followsUserId = sqLite.getUserId(data.getFollow());
+            if (followsUserId == 0) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            String query = "SELECT message.*, user.* FROM message, user "
-                    + "WHERE message.flagged = 0 AND user.user_id = message.author_id AND user.user_id = ? "
-                    + "ORDER BY message.pub_date DESC LIMIT ?";
-            List<Object> args = new ArrayList<>();
-            args.add(register.getUsername());
-            args.add(register.getEmail());
-            args.add(passwordEncoder.encode(register.getPassword()));
-            List<Map<String, Object>> messages = sqLite.queryDb(query, userId, noMsgs);
-            return new ResponseEntity<>(messages, HttpStatus.OK);
-
-        } else if (RequestMethod.POST.toString().equals(request.getMethod())) {
-            Map<String, Object> requestData = getRequestData(request);
-            String query = "INSERT INTO message (author_id, text, pub_date, flagged) VALUES (?, ?, ?, 0)";
-            getJdbcTemplate().update(query, getUserId(username), requestData.get("content"), Instant.now().getEpochSecond());
+            int rs = sqLite.follow(userId, followsUserId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (SQLException e) {
+            return ResponseEntity.internalServerError().body(e);
         }
-        return null;
     }
+
+    private ResponseEntity<Object> unfollow(SimData data, String username, int userId) {
+        try {
+            int unfollowsUserId = sqLite.getUserId(data.getUnfollow());
+            if (unfollowsUserId == 0) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            sqLite.unfollow(userId, unfollowsUserId);
+            return ResponseEntity.noContent().build();
+        } catch (SQLException e) {
+            return ResponseEntity.internalServerError().body(e);
+        }
+    }
+
+    private ResponseEntity<Object> follows(int noMsgs, int userId) {
+        try {
+            String query = "SELECT user.username FROM user INNER JOIN follower ON follower.whom_id=user.user_id WHERE follower.who_id=? LIMIT ?";
+            List<Object> args = new ArrayList<>();
+            args.add(userId);
+            args.add(noMsgs);
+            List<Map<String, Object>> followers = sqLite.queryDb(query, args);
+            List<String> followerNames = followers.stream().map(f -> f.get("username").toString()).collect(Collectors.toList());
+            Map<String, Object> followersResponse = new HashMap<>();
+            followersResponse.put("follows", followerNames);
+            return ResponseEntity.ok().body(followersResponse);
+        } catch (SQLException e) {
+            return ResponseEntity.internalServerError().body(e);
+        }
+    }
+
 }
