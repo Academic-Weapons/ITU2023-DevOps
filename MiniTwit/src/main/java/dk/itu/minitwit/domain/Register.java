@@ -6,6 +6,15 @@ public class Register {
     private String email;
     private String password;
     private String password2;
+    private String pwd;
+
+    public String getPwd() {
+        return pwd;
+    }
+
+    public void setPwd(String pwd) {
+        this.pwd = pwd;
+    }
 
     public String getUsername() {
         return username;
