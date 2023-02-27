@@ -1,38 +1,25 @@
 package dk.itu.minitwit.controller;
 
-
 import dk.itu.minitwit.database.SQLite;
-
 import dk.itu.minitwit.domain.AddMessage;
 import dk.itu.minitwit.domain.Login;
 import dk.itu.minitwit.domain.Register;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-
 import org.springframework.web.bind.annotation.*;
-
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
-
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-
-
-@SpringBootApplication(exclude = {SecurityAutoConfiguration.class})
 @Controller
 public class MiniTwitController {
 
@@ -168,13 +155,13 @@ public class MiniTwitController {
         if (!loggedIn) return "redirect:/login";
         Integer whomId = getUserID(username);
         //TODO lav noget 404?
-        if (whomId ==  null) return "redirect:/public";
+        if (whomId == null) return "redirect:/public";
 
         List<Object> args = new ArrayList<>();
         args.add(session.getAttribute("user_id"));
         args.add(whomId);
         int result = sqLite.updateDb("insert into follower (who_id, whom_id) values (?, ?)", args);
-        return "redirect:/"+username;
+        return "redirect:/" + username;
     }
 
     @GetMapping("/{username}/unfollow")
@@ -186,13 +173,13 @@ public class MiniTwitController {
         if (!loggedIn) return "redirect:/login";
         Integer whomId = getUserID(username);
         //TODO lav noget 404?
-        if (whomId ==  null) return "redirect:/public";
+        if (whomId == null) return "redirect:/public";
 
         List<Object> args = new ArrayList<>();
         args.add(session.getAttribute("user_id"));
         args.add(whomId);
         int result = sqLite.updateDb("delete from follower where who_id=? and whom_id=?", args);
-        return "redirect:/"+username;
+        return "redirect:/" + username;
 
     }
 
