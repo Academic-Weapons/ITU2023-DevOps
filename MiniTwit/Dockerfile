@@ -7,10 +7,10 @@ RUN mvn -f /app/pom.xml clean package -DskipTests
 FROM openjdk:17-oracle
 
 
-COPY --from=maven-builder app/target/MiniTwit-0.0.1-SNAPSHOT.war /app-service/MiniTwit-0.0.1-SNAPSHOT.war
+COPY --from=maven-builder app/target/MiniTwit-0.0.3.war /app-service/MiniTwit-0.0.3.war
 COPY minitwit.db /app-service/minitwit.db
 WORKDIR /app-service
 
 
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","MiniTwit-0.0.1-SNAPSHOT.war"]
+ENTRYPOINT ["java","-jar","MiniTwit-0.0.3.war"]
