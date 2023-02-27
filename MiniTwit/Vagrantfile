@@ -1,6 +1,7 @@
 DO_BOX_URL = "https://github.com/devopsgroup-io/vagrant-digitalocean/raw/master/box/digital_ocean.box"
 PRIVATE_KEY_PATH = "id_rsa"
-TOKEN = "dop_v1_f5570d3e10b2f1e8a202b8a251c6719bef5fe8b36d28402f2813402567ae8396"
+PUBLIC_KEY_PATH="id_rsa.pub"
+TOKEN = "dop_v1_4242a52672d0bce878f9c4e63779775b4e33c1cf6adac68f78e422a6c069afe8"
 
 Vagrant.configure("2") do |config|
   config.vm.define "minitwit1" do |droplet|
@@ -15,11 +16,26 @@ Vagrant.configure("2") do |config|
       provider.region = 'fra1'
     #   provider.size = '8gb'
 
+    config.vm.synced_folder ".", "/vagrant", type: "rsync"
+    
+
 
     config.vm.provision "shell", inline: <<-SHELL
     sudo apt-get update
     sudo apt-get install -y openjdk-17-jdk maven sqlite3 libsqlite3-dev tomcat9
+
+    # Add public key to authorized_keys file
+    mkdir -p /home/vagrant/.ssh
+    chmod 700 /home/vagrant/.ssh
+    echo #{PUBLIC_KEY_PATH} >> /home/vagrant/.ssh/authorized_keys
+    chmod 600 /home/vagrant/.ssh/authorized_keys
+    chown -R $USER:$USER /home/vagrant/.ssh
+    
+    # Lanuch war file
+    nohup java -jar /vagrant/MiniTwit/target/MiniTwit-0.0.1-SNAPSHOT.war > /vagrant/minitwit.log 2>&1 &
+    sleep 30s
     SHELL
+
     end
   end
 end
