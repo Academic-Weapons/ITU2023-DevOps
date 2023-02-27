@@ -8,11 +8,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,9 +22,6 @@ public class SimulatorController {
 
     @Autowired
     SQLite sqLite;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     private int LATEST = 0;
 
@@ -44,7 +39,7 @@ public class SimulatorController {
     }
 
     @RequestMapping(
-            value = "/latest",
+            value = "sim/latest",
             method = RequestMethod.GET,
             produces = "application/json")
     public ResponseEntity<Object> getLatest() {
@@ -52,7 +47,7 @@ public class SimulatorController {
     }
 
     @RequestMapping(
-            value = "/register",
+            value = "sim/register",
             method = RequestMethod.POST,
             produces = "application/json")
     public ResponseEntity<Object> register(@RequestBody Register register,
@@ -77,7 +72,7 @@ public class SimulatorController {
     }
 
     @RequestMapping(
-            value = "/msgs",
+            value = "sim/msgs",
             method = RequestMethod.GET,
             produces = "application/json")
     public ResponseEntity<Object> messages(HttpServletRequest request, @RequestParam(value = "no", defaultValue = "100", required = false) int noMsgs,
@@ -101,7 +96,7 @@ public class SimulatorController {
         }
     }
 
-    @RequestMapping(value = "/msgs/{username}",
+    @RequestMapping(value = "sim/msgs/{username}",
             method = RequestMethod.GET,
             produces = "application/json")
     public ResponseEntity<Object> messagesPerUserGet(HttpServletRequest request,
@@ -129,7 +124,7 @@ public class SimulatorController {
         return ResponseEntity.ok(messages);
     }
 
-    @RequestMapping(value = "/msgs/{username}",
+    @RequestMapping(value = "sim/msgs/{username}",
             method = RequestMethod.POST,
             produces = "application/json")
     public ResponseEntity<Object> messagesPerUserPost(HttpServletRequest request,
@@ -152,7 +147,7 @@ public class SimulatorController {
         return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping(value = "/fllws/{username}",
+    @RequestMapping(value = "sim/fllws/{username}",
             method = RequestMethod.POST,
             produces = "application/json")
     public ResponseEntity<Object> followPost(HttpServletRequest request,
@@ -178,14 +173,14 @@ public class SimulatorController {
 
 
         if (request.getMethod().equals("POST") && data.getFollow() != null) {
-            return follow(data, username, userId);
+            return follow(data, userId);
         } else if (request.getMethod().equals("POST") && data.getUnfollow() != null) {
-            return unfollow(data, username, userId);
+            return unfollow(data, userId);
         }
         return ResponseEntity.badRequest().build();
     }
 
-    @RequestMapping(value = "/fllws/{username}",
+    @RequestMapping(value = "sim/fllws/{username}",
             method = RequestMethod.GET,
             produces = "application/json")
     public ResponseEntity<Object> followGet(HttpServletRequest request,
@@ -214,7 +209,7 @@ public class SimulatorController {
         return ResponseEntity.internalServerError().body(e);
     }
 
-    private ResponseEntity<Object> follow(SimData data, String username, int userId) {
+    private ResponseEntity<Object> follow(SimData data, int userId) {
         try {
             int followsUserId = sqLite.getUserId(data.getFollow());
             if (followsUserId == 0) {
@@ -227,7 +222,7 @@ public class SimulatorController {
         }
     }
 
-    private ResponseEntity<Object> unfollow(SimData data, String username, int userId) {
+    private ResponseEntity<Object> unfollow(SimData data, int userId) {
         try {
             int unfollowsUserId = sqLite.getUserId(data.getUnfollow());
             if (unfollowsUserId == 0) {

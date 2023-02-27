@@ -5,6 +5,7 @@ import dk.itu.minitwit.domain.SimData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,7 +19,7 @@ import java.util.Map;
 @Component
 public class SQLite {
 
-//    private final String DATABASE_URL = "/tmp/minitwit.db";
+    //    private final String DATABASE_URL = "/tmp/minitwit.db";
     private final String DATABASE_URL = "minitwit.db";
     private final boolean DEBUG = true;
     private final String SECRET_KEY = "development key";
@@ -82,7 +83,7 @@ public class SQLite {
         return result;
     }
 
-public int updateDb(String query, List<Object> args) throws SQLException {
+    public int updateDb(String query, List<Object> args) throws SQLException {
         List<Map<String, Object>> result = new ArrayList<>();
         try (Connection conn = connectDb();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -90,10 +91,10 @@ public int updateDb(String query, List<Object> args) throws SQLException {
                 stmt.setObject(i + 1, args.get(i));
             }
 
-                int rs = stmt.executeUpdate();
-                return rs;
+            int rs = stmt.executeUpdate();
+            return rs;
         }
-}
+    }
 
 
     public int insertMessage(int userId, SimData data) throws SQLException {
@@ -108,7 +109,7 @@ public int updateDb(String query, List<Object> args) throws SQLException {
         }
     }
 
-    public int register(Register register) throws SQLException{
+    public int register(Register register) throws SQLException {
         String query = "insert into user (username, email, pw_hash) values (?, ?, ?)";
         try (Connection conn = connectDb();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -120,7 +121,7 @@ public int updateDb(String query, List<Object> args) throws SQLException {
         }
     }
 
-    public int unfollow(int userId,int unfollowsUserId) throws SQLException {
+    public int unfollow(int userId, int unfollowsUserId) throws SQLException {
         String query = "DELETE FROM follower WHERE who_id=? AND whom_id=?";
         try (Connection conn = connectDb();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -129,17 +130,17 @@ public int updateDb(String query, List<Object> args) throws SQLException {
 
             int rs = stmt.executeUpdate();
             return rs;
-    }
+        }
     }
 
-    public int follow(int userId, int followUserId) throws SQLException{
+    public int follow(int userId, int followUserId) throws SQLException {
         String query = "INSERT INTO follower (who_id, whom_id) VALUES (?, ?)";
         try (Connection conn = connectDb();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, userId);
             stmt.setInt(2, followUserId);
-                int rs = stmt.executeUpdate();
-                return rs;
+            int rs = stmt.executeUpdate();
+            return rs;
         }
     }
 
@@ -148,7 +149,7 @@ public int updateDb(String query, List<Object> args) throws SQLException {
         int userId = -1;
         List<Map<String, Object>> results = queryDb("select user_id from user where username = ?", List.of(username));
         if (!results.isEmpty()) {
-            userId = (int) results.get(0).getOrDefault("user_id",-1);
+            userId = (int) results.get(0).getOrDefault("user_id", -1);
         }
         return userId;
     }
