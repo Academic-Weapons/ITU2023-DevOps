@@ -57,6 +57,8 @@ public class MiniTwitController {
             System.out.println("ERROR_" + e);
             return "Error";
 
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
 //        System.out.println(messages);
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss");
@@ -70,7 +72,7 @@ public class MiniTwitController {
 
 
     @GetMapping("/{username}")
-    public String userTimeLine(@PathVariable("username") String username, HttpServletRequest request, Model model) throws SQLException {
+    public String userTimeLine(@PathVariable("username") String username, HttpServletRequest request, Model model) throws SQLException, ClassNotFoundException {
         HttpSession session = request.getSession(false);
         model.addAttribute("public", "false");
         model.addAttribute("username", username);
@@ -104,7 +106,7 @@ public class MiniTwitController {
         try {
             messages = sqLite.queryDb("select message.*, user.* from message, user where user.username = ? and message.flagged = 0 and message.author_id = user.user_id order by message.pub_date desc limit ?", args);
             System.out.println(messages);
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             System.out.println("ERROR_" + e);
             return "Error";
         }
@@ -116,7 +118,7 @@ public class MiniTwitController {
         return "timeline.html";
     }
 
-    private int getUserID(String username) throws SQLException {
+    private int getUserID(String username) throws SQLException, ClassNotFoundException {
         List<Object> args = new ArrayList<>();
         args.add(username);
         List<Map<String, Object>> userIDs;
@@ -147,7 +149,7 @@ public class MiniTwitController {
     }
 
     @GetMapping("/{username}/follow")
-    public String followUser(@PathVariable("username") String username, HttpServletRequest request, Model model) throws SQLException {
+    public String followUser(@PathVariable("username") String username, HttpServletRequest request, Model model) throws SQLException, ClassNotFoundException {
         HttpSession session = request.getSession(false);
 //        model.addAttribute("public", "false");
         Boolean loggedIn = addUserToModel(model, session);
@@ -165,7 +167,7 @@ public class MiniTwitController {
     }
 
     @GetMapping("/{username}/unfollow")
-    public String unfollowUser(@PathVariable("username") String username, HttpServletRequest request, Model model) throws SQLException {
+    public String unfollowUser(@PathVariable("username") String username, HttpServletRequest request, Model model) throws SQLException, ClassNotFoundException {
         HttpSession session = request.getSession(false);
 //        model.addAttribute("public", "false");
         Boolean loggedIn = addUserToModel(model, session);
@@ -205,7 +207,7 @@ public class MiniTwitController {
     }
 
     @RequestMapping(value = "/login", method = {RequestMethod.GET, RequestMethod.POST})
-    public String login(@ModelAttribute Login login, Model model, HttpServletRequest request) throws SQLException {
+    public String login(@ModelAttribute Login login, Model model, HttpServletRequest request) throws SQLException, ClassNotFoundException {
 //        System.out.println(login);
 //        System.out.println(request.getMethod());
         if ("POST".equals(request.getMethod())) {

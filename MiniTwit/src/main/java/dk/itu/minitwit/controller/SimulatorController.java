@@ -51,7 +51,7 @@ public class SimulatorController {
             method = RequestMethod.POST,
             produces = "application/json")
     public ResponseEntity<Object> register(@RequestBody Register register,
-                                           @RequestParam(value = "latest", required = false, defaultValue = "-1") int latest) throws SQLException {
+                                           @RequestParam(value = "latest", required = false, defaultValue = "-1") int latest) throws SQLException, ClassNotFoundException {
         updateLatest(latest);
         if (register.getUsername() == null) {
             return ResponseEntity.badRequest().body("{\"status\":400, \"error_msg\":\"You have to enter a username\"}");
@@ -93,6 +93,8 @@ public class SimulatorController {
             return ResponseEntity.ok(messages);
         } catch (SQLException e) {
             return internalErrorResponse(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -102,7 +104,7 @@ public class SimulatorController {
     public ResponseEntity<Object> messagesPerUserGet(HttpServletRequest request,
                                                      @PathVariable("username") String username,
                                                      @RequestParam(value = "no", defaultValue = "100", required = false) int noMsgs,
-                                                     @RequestParam(value = "latest", required = false, defaultValue = "-1") int latest) throws SQLException {
+                                                     @RequestParam(value = "latest", required = false, defaultValue = "-1") int latest) throws SQLException, ClassNotFoundException {
         updateLatest(latest);
         ResponseEntity<Object> notFromSimResponse = notReqFromSimulator(request);
         if (notFromSimResponse != null) {
@@ -131,7 +133,7 @@ public class SimulatorController {
                                                       @RequestBody SimData data,
                                                       @PathVariable("username") String username,
                                                       @RequestParam(value = "no", defaultValue = "100", required = false) int noMsgs,
-                                                      @RequestParam(value = "latest", required = false, defaultValue = "-1") int latest) throws SQLException {
+                                                      @RequestParam(value = "latest", required = false, defaultValue = "-1") int latest) throws SQLException, ClassNotFoundException {
         updateLatest(latest);
         ResponseEntity<Object> notFromSimResponse = notReqFromSimulator(request);
         if (notFromSimResponse != null) {
@@ -141,8 +143,8 @@ public class SimulatorController {
 
         try {
             sqLite.insertMessage(userId, data);
-        } catch (SQLException e) {
-            return internalErrorResponse(e);
+        } catch (SQLException | ClassNotFoundException e) {
+            return ResponseEntity.internalServerError().body(e);
         }
         return ResponseEntity.noContent().build();
     }
@@ -167,8 +169,8 @@ public class SimulatorController {
             if (userId == 0) {
                 return ResponseEntity.notFound().build();
             }
-        } catch (SQLException e) {
-            return internalErrorResponse(e);
+        } catch (SQLException | ClassNotFoundException e) {
+            return ResponseEntity.internalServerError().body(e);
         }
 
 
@@ -199,8 +201,8 @@ public class SimulatorController {
             if (userId == 0) {
                 return ResponseEntity.notFound().build();
             }
-        } catch (SQLException e) {
-            return internalErrorResponse(e);
+        } catch (SQLException | ClassNotFoundException e) {
+            return ResponseEntity.internalServerError().body(e);
         }
         return follows(noMsgs, userId);
     }
@@ -217,7 +219,7 @@ public class SimulatorController {
             }
             int rs = sqLite.follow(userId, followsUserId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             return ResponseEntity.internalServerError().body(e);
         }
     }
@@ -230,7 +232,7 @@ public class SimulatorController {
             }
             sqLite.unfollow(userId, unfollowsUserId);
             return ResponseEntity.noContent().build();
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             return ResponseEntity.internalServerError().body(e);
         }
     }
@@ -246,7 +248,7 @@ public class SimulatorController {
             Map<String, Object> followersResponse = new HashMap<>();
             followersResponse.put("follows", followerNames);
             return ResponseEntity.ok().body(followersResponse);
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             return ResponseEntity.internalServerError().body(e);
         }
     }
