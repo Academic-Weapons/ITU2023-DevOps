@@ -37,7 +37,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./Dockerfile-minitwit
+          file: ./MiniTwit/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/minitwitimage:latest
           cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/minitwitimage:webbuildcache
