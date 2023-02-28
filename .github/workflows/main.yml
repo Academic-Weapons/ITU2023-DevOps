@@ -79,7 +79,7 @@ jobs:
       - name: Deploy to server
         # Configure the ~./bash_profile and deploy.sh file on the Vagrantfile
         run: >
-          ssh $SSH_USER@$SSH_HOST
+          ssh -i ~/.ssh/minitwit.key $SSH_USER@$SSH_HOST
           -o StrictHostKeyChecking=no
           echo 'Hello'
         env:
