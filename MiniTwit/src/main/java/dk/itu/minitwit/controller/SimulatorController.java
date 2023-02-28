@@ -245,7 +245,11 @@ public class SimulatorController {
             List<String> followerNames = followers.stream().map(f -> f.get("username").toString()).collect(Collectors.toList());
             Map<String, Object> followersResponse = new HashMap<>();
             followersResponse.put("follows", followerNames);
-            return ResponseEntity.ok().body(followersResponse);
+            if(followerNames.isEmpty()){
+                return ResponseEntity.notFound().build();
+            } else {
+                return ResponseEntity.ok().body(followersResponse);
+            }
         } catch (SQLException e) {
             return ResponseEntity.internalServerError().body(e);
         }
