@@ -1,6 +1,8 @@
 version: '3'
 services:
   minitwit:
-    image: minitwit
+    container_name: minitwit
+    build: .
+    image: minitwit:latest
     ports:
-      - "8080:8080"
+      - 8081:8080
