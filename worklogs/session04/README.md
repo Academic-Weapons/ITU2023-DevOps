@@ -13,3 +13,6 @@ We have choosen Github Actions with a YAML file for configuration and Docker for
 4. Wide Range of Supported Platforms and Environments: Github Actions supports a wide range of platforms and environments, including Linux, macOS, and Windows, as well as cloud services such as AWS, Azure, and Google Cloud, if we want to migrate in the furture.
 
 5. Community Support: Github Actions has a large and active community of developers, who share their workflows and best practices on Github.
+
+### Secrets
+Currently we're also using github secrets, that integrates with the Github Actions. This way we can store secrets that the pipeline requires, in our organazation so that it can be updated on the fly.
