@@ -1,4 +1,4 @@
-# Session 02 worklog 
+# Session 05 worklog 
 ## Introduce a DB abstraction layer in your ITU-MiniTwit
 
 ### Object-relational mapping (ORM)
