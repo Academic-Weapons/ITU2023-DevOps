@@ -1,6 +1,16 @@
 # Session 02 worklog 
 ## Introduce a DB abstraction layer in your ITU-MiniTwit
 
+
+### Flow
+
+
+### Feedback
+
+
+### Continual Learning and Experimentation
+
+
 ### Object-relational mapping (ORM)
 Although the implementation of this feature has not yet been realized, we plan to employ Spring Data JPA for the purpose of mapping. Presently, the system lacks the Object-Relational Mapping (ORM) framework, but we intend to integrate it in future iterations. Although the ORM framework is absent the system is still fully functional, but do not have the persistence we want. Here are some of the reasons why we opted for this technology.
 
