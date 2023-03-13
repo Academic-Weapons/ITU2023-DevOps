@@ -19,8 +19,8 @@ import java.util.Map;
 @Component
 public class SQLite {
 
-    //    private final String DATABASE_URL = "/tmp/minitwit.db";
-    private final String DATABASE_URL = "mysql://db-minitwit-do-user-13625042-0.b.db.ondigitalocean.com:25060/defaultdb?ssl-mode=REQUIRED";
+    private final String DATABASE_URL = "/tmp/minitwit.db";
+    // private final String DATABASE_URL = "mysql://db-minitwit-do-user-13625042-0.b.db.ondigitalocean.com:25060/defaultdb?ssl-mode=REQUIRED";
     private final boolean DEBUG = true;
     private final String SECRET_KEY = "development key";
 

@@ -70,6 +70,36 @@ public class MiniTwitController {
         return "timeline.html";
     }
 
+    @GetMapping("/favourites")
+    public String favourites (@PathVariable("username") String username, HttpServletRequest request, Model model) throws SQLException {
+        HttpSession session = request.getSession(false);
+        model.addAttribute("public", "false");
+        model.addAttribute("username", username);
+        Boolean loggedIn = addUserToModel(model, session);
+        
+        if (loggedIn) {
+            if (username.equals("favicon.ico")) return "redirect:/public"; // Unsure if this if is necessary, but we've kept it in.
+        }
+
+        List<Map<String, Object>> messages;
+        try {
+            List<Object> args = new ArrayList<>();
+            args.add(getUserID(username));
+            args.add(PER_PAGE);
+            messages = sqLite.queryDb("select message.*, user.* from message, user inner join favourite on message.id = favourite.message_id where favourite.user_id = ? order by message.pub_date desc limit ?", args);
+            System.out.println(messages);
+        } catch (SQLException | ClassNotFoundException e) {
+            System.out.println("ERROR_" + e);
+            return "Error";
+        }
+        addDatesAndGravatarURLs(messages);
+
+        model.addAttribute("messages", messages);
+        model.addAttribute("messagesSize", messages.size());
+
+        return "favourites.html";
+    }
+
 
     @GetMapping("/{username}")
     public String userTimeLine(@PathVariable("username") String username, HttpServletRequest request, Model model) throws SQLException, ClassNotFoundException {
