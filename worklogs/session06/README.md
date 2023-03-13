@@ -1,7 +1,7 @@
 # Session 06 worklog
 
 ## 1) Add Monitoring to Your Systems
-
+TODO
 
 ## 2) Software Maintenance
 At the current time, there are no issuse present in our system based on the dashboard provided by Helge and the TA's.
