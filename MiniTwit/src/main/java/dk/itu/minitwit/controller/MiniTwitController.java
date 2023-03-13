@@ -236,6 +236,23 @@ public class MiniTwitController {
         return "redirect:/public";
     }
 
+    @PostMapping
+    public String addMessageToFavourites(@PathVariable("messageID") String messageID, HttpServletRequest request, Model model) throws SQLException, ClassNotFoundException {
+        HttpSession session = request.getSession(false);
+
+        if (session != null && session.getAttribute("user_id") == null) {
+            return "401";
+        }
+
+        List<Object> args = new ArrayList<>();
+        args.add(session.getAttribute("user_id"));
+        args.add(messageID);
+        int result = sqLite.updateDb("insert into favourite (user_id, message_id) values (?, ?)", args);
+
+        return "redirect:/favourites";
+    }
+
+
     @RequestMapping(value = "/login", method = {RequestMethod.GET, RequestMethod.POST})
     public String login(@ModelAttribute Login login, Model model, HttpServletRequest request) throws SQLException, ClassNotFoundException {
 //        System.out.println(login);
