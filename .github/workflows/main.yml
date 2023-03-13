@@ -80,6 +80,9 @@ jobs:
         # Configure the ~./bash_profile and deploy.sh file on the Vagrantfile
         run: |
           ssh -i ~/.ssh/minitwit.key $SSH_USER@$SSH_HOST -o StrictHostKeyChecking=no 
+          whoami
+          docker ps -a
+          docker images
           docker pull magmose1/minitwitimage:latest
           # docker stop minitwit
           # docker rm minitwit
