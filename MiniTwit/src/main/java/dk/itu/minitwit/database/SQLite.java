@@ -19,8 +19,9 @@ import java.util.Map;
 @Component
 public class SQLite {
 
-    //    private final String DATABASE_URL = "/tmp/minitwit.db";
-    private final String DATABASE_URL = "minitwit.db";
+//    private final String DATABASE_URL = "minitwit.db";
+
+    private final String DATABASE_URL = "mysql://db-minitwit-do-user-13625042-0.b.db.ondigitalocean.com:25060/defaultdb?ssl-mode=REQUIRED";
     private final boolean DEBUG = true;
     private final String SECRET_KEY = "development key";
 
@@ -28,9 +29,15 @@ public class SQLite {
     private PasswordEncoder passwordEncoder;
 
 
-    private Connection connectDb() throws SQLException {
-        return DriverManager.getConnection("jdbc:sqlite:" + DATABASE_URL);
-    }
+//    private Connection connectDb() throws SQLException, ClassNotFoundException {
+//        return DriverManager.getConnection("jdbc:sqlite:" + DATABASE_URL);
+//    }
+
+     private Connection connectDb() throws SQLException, ClassNotFoundException {
+         Class.forName("com.mysql.jdbc.Driver");
+
+         return DriverManager.getConnection("jdbc:" + DATABASE_URL, "doadmin", "AVNS_W7vkzWZhBrw3fUsgp71");
+     }
 
 
     public void initDb() throws SQLException {
@@ -41,6 +48,8 @@ public class SQLite {
                 statement.executeUpdate(schemaStatement);
             }
             conn.commit();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -63,7 +72,7 @@ public class SQLite {
         return schemaStatements;
     }
 
-    public List<Map<String, Object>> queryDb(String query, List<Object> args) throws SQLException {
+    public List<Map<String, Object>> queryDb(String query, List<Object> args) throws SQLException, ClassNotFoundException {
         List<Map<String, Object>> result = new ArrayList<>();
         try (Connection conn = connectDb();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -93,11 +102,13 @@ public class SQLite {
 
             int rs = stmt.executeUpdate();
             return rs;
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
 
-    public int insertMessage(int userId, SimData data) throws SQLException {
+    public int insertMessage(int userId, SimData data) throws SQLException, ClassNotFoundException {
         String query = "INSERT INTO message (author_id, text, pub_date, flagged) VALUES (?, ?, ?, 0)";
         try (Connection conn = connectDb();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -118,10 +129,12 @@ public class SQLite {
             stmt.setString(3, passwordEncoder.encode(register.getPwd()));
             int rs = stmt.executeUpdate();
             return rs;
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public int unfollow(int userId, int unfollowsUserId) throws SQLException {
+    public int unfollow(int userId, int unfollowsUserId) throws SQLException, ClassNotFoundException {
         String query = "DELETE FROM follower WHERE who_id=? AND whom_id=?";
         try (Connection conn = connectDb();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -141,11 +154,13 @@ public class SQLite {
             stmt.setInt(2, followUserId);
             int rs = stmt.executeUpdate();
             return rs;
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
 
-    public int getUserId(String username) throws SQLException {
+    public int getUserId(String username) throws SQLException, ClassNotFoundException {
         int userId = -1;
         List<Map<String, Object>> results = queryDb("select user_id from user where username = ?", List.of(username));
         if (!results.isEmpty()) {
