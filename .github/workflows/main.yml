@@ -68,26 +68,37 @@ jobs:
      #   env:
       #    DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
 
-      - name: Configure SSH
-        run: |
-          mkdir -p ~/.ssh/
-          echo "$SSH_KEY" > ~/.ssh/minitwit.key
-          chmod 600 ~/.ssh/minitwit.key
-        env:
-          SSH_KEY: ${{ secrets.SSH_KEY }}
+#      - name: Configure SSH
+#        run: |
+#          mkdir -p ~/.ssh/
+#          echo "$SSH_KEY" > ~/.ssh/minitwit.key
+#          chmod 600 ~/.ssh/minitwit.key
+#        env:
+#          SSH_KEY: ${{ secrets.SSH_KEY }}
 
-      - name: Deploy to server
-        # Configure the ~./bash_profile and deploy.sh file on the Vagrantfile
-        run: |
-          ssh -i ~/.ssh/minitwit.key $SSH_USER@$SSH_HOST -o StrictHostKeyChecking=no 
-          whoami
-          docker ps -a
-          docker images
-          docker pull magmose1/minitwitimage:latest
-          docker ps
+      - name: deployment
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            whoami
+            ls -al
+            
+            
+#      - name: Deploy to server
+#        # Configure the ~./bash_profile and deploy.sh file on the Vagrantfile
+#        run: |
+#          ssh -i ~/.ssh/minitwit.key $SSH_USER@$SSH_HOST -o StrictHostKeyChecking=no 
+#          whoami
+#          docker ps -a
+#          docker images
+#          docker pull magmose1/minitwitimage:latest
+#          docker ps
           # docker stop minitwit
           # docker rm minitwit
-          docker run -d -p 8082:8080 --name mini3 magmose1/minitwitimage:latest
-        env:
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
+#          docker run -d -p 8082:8080 --name mini3 magmose1/minitwitimage:latest
+#        env:
+#          SSH_USER: ${{ secrets.SSH_USER }}
+#          SSH_HOST: ${{ secrets.SSH_HOST }}
