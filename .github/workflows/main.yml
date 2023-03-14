@@ -83,11 +83,9 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            whoami
-            ls -al
             docker pull magmose1/minitwitimage:latest
-            docker stop mini3 || true && docker rm mini3 || true
-            docker run -d -p 8082:8080 --name mini3 magmose1/minitwitimage:latest
+            docker stop minitwit || true && docker rm minitwit || true
+            docker run -d -p 8081:8080 --name minitwit magmose1/minitwitimage:latest
             docker ps
             
             
