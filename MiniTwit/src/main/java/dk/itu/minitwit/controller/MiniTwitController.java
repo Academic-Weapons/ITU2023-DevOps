@@ -235,8 +235,8 @@ public class MiniTwitController {
 
         return "redirect:/public";
     }
-
-    @PostMapping
+    
+    @PostMapping("/addMessageToFavourites")
     public String addMessageToFavourites(@PathVariable("messageID") String messageID, HttpServletRequest request, Model model) throws SQLException, ClassNotFoundException {
         HttpSession session = request.getSession(false);
 
@@ -248,6 +248,24 @@ public class MiniTwitController {
         args.add(session.getAttribute("user_id"));
         args.add(messageID);
         int result = sqLite.updateDb("insert into favourite (user_id, message_id) values (?, ?)", args);
+        // CREATE TABLE favourite (user_id integer REFERENCES user(id),message_id integer REFERENCES message(id))
+
+        return "redirect:/public";
+    }
+
+    @PostMapping("/removeMessageToFavourites")
+    public String removeMessageToFavourites(@PathVariable("messageID") String messageID, HttpServletRequest request, Model model) throws SQLException, ClassNotFoundException {
+        HttpSession session = request.getSession(false);
+
+        if (session != null && session.getAttribute("user_id") == null) {
+            return "401";
+        }
+
+        List<Object> args = new ArrayList<>();
+        args.add(session.getAttribute("user_id"));
+        args.add(messageID);
+        int result = sqLite.updateDb("delete from favourite (user_id, message_id) values (?, ?)", args);
+        //int result = sqLite.updateDb("delete from favourite where user_id = ? and message_id = ?", args);
 
         return "redirect:/favourites";
     }
