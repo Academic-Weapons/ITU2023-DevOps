@@ -12,7 +12,7 @@ COPY --from=maven-builder app/target/MiniTwit-0.0.4.war /app-service/MiniTwit-0.
 COPY minitwit.db /app-service/minitwit.db
 WORKDIR /app-service
 
-s
+
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","MiniTwit-0.0.4.war"]
 
