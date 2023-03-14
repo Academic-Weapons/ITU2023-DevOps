@@ -84,6 +84,7 @@ jobs:
           docker ps -a
           docker images
           docker pull magmose1/minitwitimage:latest
+          docker ps
           # docker stop minitwit
           # docker rm minitwit
           docker run -d -p 8082:8080 --name mini3 magmose1/minitwitimage:latest
