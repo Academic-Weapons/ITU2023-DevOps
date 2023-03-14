@@ -81,7 +81,7 @@
                         </strong>
                         <span th:text="${message.text}"></span>
                         <small>&mdash; <span th:text="${message.date_time}"></span></small><br>
-                        <a class="favourite" th:href="@{/addMessageToFavourites(messageID=${message.id})}"> 
+                        <a class="favourite" th:href="@{/addMessageToFavourites/{messageID}(messageID=${message.message_id})}">
                             Add to favourites
                         </a>
                     </p>
