@@ -85,6 +85,10 @@ jobs:
           script: |
             whoami
             ls -al
+            docker pull magmose1/minitwitimage:latest
+            docker stop mini3 || true && docker rm mini3 || true
+            docker run -d -p 8082:8080 --name mini3 magmose1/minitwitimage:latest
+            docker ps
             
             
 #      - name: Deploy to server
