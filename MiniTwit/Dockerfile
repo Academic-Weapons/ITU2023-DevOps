@@ -15,3 +15,4 @@ WORKDIR /app-service
 
 EXPOSE 8080
 ENTRYPOINT ["java","-jar","MiniTwit-0.0.4.war"]
+
