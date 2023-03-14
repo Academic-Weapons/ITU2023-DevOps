@@ -8,10 +8,10 @@ FROM openjdk:17-oracle
 
 
 
-COPY --from=maven-builder app/target/MiniTwit-0.0.4.war /app-service/MiniTwit-0.0.4.war
+COPY --from=maven-builder app/target/MiniTwit-0.0.5.war /app-service/MiniTwit-0.0.5.war
 COPY minitwit.db /app-service/minitwit.db
 WORKDIR /app-service
 
 
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","MiniTwit-0.0.3.war"]
+ENTRYPOINT ["java","-jar","MiniTwit-0.0.5.war"]
