@@ -76,7 +76,7 @@ public class MiniTwitController {
         model.addAttribute("public", "false");
         Boolean loggedIn = addUserToModel(model, session);
         if (!loggedIn) {
-            return "redirect:/public"; // Unsure if this if is necessary, but we've kept it in.
+            return "redirect:/public"; 
         }
         
         List<Map<String, Object>> messages;
@@ -84,7 +84,6 @@ public class MiniTwitController {
             List<Object> args = new ArrayList<>();
             args.add(getUserID((String)session.getAttribute("user")));
             args.add(PER_PAGE);
-            // messages = sqLite.queryDb("select message.*, user.* from message, user inner join favourite on user.user_id = favourite.user_id where favourite.user_id = ? order by message.pub_date desc limit ?", args);
             messages = sqLite.queryDb("select message.*, user.* from message inner join user on message.author_id = user.user_id inner join favourite on message.message_id = favourite.message_id where favourite.user_id = ? order by message.pub_date desc limit ?", args);
             System.out.println(messages);
         } catch (SQLException | ClassNotFoundException e) {
@@ -246,7 +245,6 @@ public class MiniTwitController {
         args.add(session.getAttribute("user_id"));
         args.add(messageID);
         int result = sqLite.updateDb("insert ignore into favourite (user_id, message_id) values (?, ?)", args);
-        // CREATE TABLE favourite (user_id integer REFERENCES user(id),message_id integer REFERENCES message(id))
 
         return "redirect:/public";
     }
@@ -262,7 +260,6 @@ public class MiniTwitController {
         List<Object> args = new ArrayList<>();
         args.add(session.getAttribute("user_id"));
         args.add(messageID);
-        // int result = sqLite.updateDb("delete from favourite (user_id, message_id) values (?, ?)", args);
         int result = sqLite.updateDb("delete from favourite where favourite.user_id = ? and favourite.message_id = ?", args);
 
         return "redirect:/favourites";
