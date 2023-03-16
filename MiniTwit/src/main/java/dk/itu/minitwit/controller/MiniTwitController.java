@@ -71,29 +71,27 @@ public class MiniTwitController {
     }
 
     @GetMapping("/favourites")
-    public String favourites (@PathVariable("username") String username, HttpServletRequest request, Model model) throws SQLException {
+    public String favourites (HttpServletRequest request, Model model) throws SQLException {
         HttpSession session = request.getSession(false);
         model.addAttribute("public", "false");
-        model.addAttribute("username", username);
         Boolean loggedIn = addUserToModel(model, session);
-        
-        if (loggedIn) {
-            if (username.equals("favicon.ico")) return "redirect:/public"; // Unsure if this if is necessary, but we've kept it in.
+        if (!loggedIn) {
+            return "redirect:/public"; 
         }
-
+        
         List<Map<String, Object>> messages;
         try {
             List<Object> args = new ArrayList<>();
-            args.add(getUserID(username));
+            args.add(getUserID((String)session.getAttribute("user")));
             args.add(PER_PAGE);
-            messages = sqLite.queryDb("select message.*, user.* from message, user inner join favourite on message.id = favourite.message_id where favourite.user_id = ? order by message.pub_date desc limit ?", args);
+            messages = sqLite.queryDb("select message.*, user.* from message inner join user on message.author_id = user.user_id inner join favourite on message.message_id = favourite.message_id where favourite.user_id = ? order by message.pub_date desc limit ?", args);
             System.out.println(messages);
         } catch (SQLException | ClassNotFoundException e) {
             System.out.println("ERROR_" + e);
             return "Error";
         }
         addDatesAndGravatarURLs(messages);
-
+        
         model.addAttribute("messages", messages);
         model.addAttribute("messagesSize", messages.size());
 
@@ -218,7 +216,7 @@ public class MiniTwitController {
     @PostMapping("/add_message")
     public String addMessage(AddMessage text, HttpServletRequest request, Model model) throws SQLException {
         HttpSession session = request.getSession(false);
-
+        
 
         if (session != null && session.getAttribute("user_id") == null) {
             //abort 401
@@ -230,30 +228,28 @@ public class MiniTwitController {
             args.add(text.getText());
             args.add(System.currentTimeMillis() / 1000);
             int result = sqLite.updateDb("insert into message (author_id, text, pub_date, flagged) values (?, ?, ?, 0)", args);
-
+            
         }
-
+        
         return "redirect:/public";
     }
     
-    @PostMapping("/addMessageToFavourites")
+    @GetMapping("/addMessageToFavourites/{messageID}")
     public String addMessageToFavourites(@PathVariable("messageID") String messageID, HttpServletRequest request, Model model) throws SQLException, ClassNotFoundException {
         HttpSession session = request.getSession(false);
-
         if (session != null && session.getAttribute("user_id") == null) {
             return "401";
         }
-
+        
         List<Object> args = new ArrayList<>();
         args.add(session.getAttribute("user_id"));
         args.add(messageID);
-        int result = sqLite.updateDb("insert into favourite (user_id, message_id) values (?, ?)", args);
-        // CREATE TABLE favourite (user_id integer REFERENCES user(id),message_id integer REFERENCES message(id))
+        int result = sqLite.updateDb("insert ignore into favourite (user_id, message_id) values (?, ?)", args);
 
         return "redirect:/public";
     }
 
-    @PostMapping("/removeMessageToFavourites")
+    @GetMapping("/removeMessageToFavourites/{messageID}")
     public String removeMessageToFavourites(@PathVariable("messageID") String messageID, HttpServletRequest request, Model model) throws SQLException, ClassNotFoundException {
         HttpSession session = request.getSession(false);
 
@@ -264,8 +260,7 @@ public class MiniTwitController {
         List<Object> args = new ArrayList<>();
         args.add(session.getAttribute("user_id"));
         args.add(messageID);
-        int result = sqLite.updateDb("delete from favourite (user_id, message_id) values (?, ?)", args);
-        //int result = sqLite.updateDb("delete from favourite where user_id = ? and message_id = ?", args);
+        int result = sqLite.updateDb("delete from favourite where favourite.user_id = ? and favourite.message_id = ?", args);
 
         return "redirect:/favourites";
     }

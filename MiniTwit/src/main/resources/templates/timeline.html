@@ -28,6 +28,7 @@
             <div th:if="${user != 'false'}">
               <a th:href="@{/{user}(user=${user})}">my timeline</a> |
               <a th:href="@{/public}">public timeline</a> |
+              <a th:href="@{/favourites}">my favourites</a> |
               <a th:href="@{/logout}">sign out [<span th:text="${user}">Username</span>]</a>
             </div>
             <div th:if="${user == 'false'}">
@@ -81,7 +82,7 @@
                         </strong>
                         <span th:text="${message.text}"></span>
                         <small>&mdash; <span th:text="${message.date_time}"></span></small><br>
-                        <a class="favourite" th:href="@{/addMessageToFavourites/{messageID}(messageID=${message.message_id})}">
+                        <a class="favourite" th:href="@{/addMessageToFavourites/{messageID}(messageID=${message.message_id})}"> 
                             Add to favourites
                         </a>
                     </p>
