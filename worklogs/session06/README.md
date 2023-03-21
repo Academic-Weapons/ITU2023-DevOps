@@ -8,6 +8,7 @@ At the current time, there are no issuse present in our system based on the dash
 
 Group a, dashboard: http://104.248.134.203/status.html
 
+Our Grafana dashboard can be found: http://146.190.207.33:3000
 
 ## 3) Software Maintenance II
 We group a Academic Weapons -[checks]-> Group b DevUps: Delivering Buggy Software Late since 2023.
