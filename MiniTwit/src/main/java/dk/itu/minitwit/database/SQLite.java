@@ -118,7 +118,7 @@ public class SQLite {
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, userId);
             stmt.setString(2, data.getContent());
-            stmt.setInt(3, (int) Instant.now().getEpochSecond() / 1000);
+            stmt.setInt(3, (int) System.currentTimeMillis() / 1000);
             int rs = stmt.executeUpdate();
             return rs;
         }
