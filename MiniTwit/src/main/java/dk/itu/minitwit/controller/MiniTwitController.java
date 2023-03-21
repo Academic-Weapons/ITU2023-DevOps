@@ -105,7 +105,14 @@ public class MiniTwitController {
         model.addAttribute("public", "false");
         model.addAttribute("username", username);
         Boolean loggedIn = addUserToModel(model, session);
-
+        
+        List<Object> arg = new ArrayList<>();                                               //
+        arg.add(username);                                                                  //
+        List<Map<String, Object>> users;                                                    // check if there is a user with this name 
+        users = sqLite.queryDb("select * from user where user.username = ?", arg);   // redirect to public if there is no such user
+        if (users.size()==0) return "redirect:/public";                                     // todo redirect to error page insted
+        
+        
         if (loggedIn) {
             //TODO bliver kaldt af favicon ??
 //            System.out.println("username: " + username);
