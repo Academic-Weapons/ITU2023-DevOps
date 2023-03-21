@@ -19,7 +19,9 @@ import java.util.Map;
 @Component
 public class SQLite {
 
+
 //    private final String DATABASE_URL = "minitwit.db";
+
 
     private final String DATABASE_URL = "mysql://db-minitwit-do-user-13625042-0.b.db.ondigitalocean.com:25060/defaultdb?ssl-mode=REQUIRED";
     private final boolean DEBUG = true;
@@ -27,6 +29,7 @@ public class SQLite {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
 
 
 //    private Connection connectDb() throws SQLException, ClassNotFoundException {
@@ -38,6 +41,7 @@ public class SQLite {
 
          return DriverManager.getConnection("jdbc:" + DATABASE_URL, "doadmin", "AVNS_W7vkzWZhBrw3fUsgp71");
      }
+
 
 
     public void initDb() throws SQLException {

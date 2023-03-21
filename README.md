@@ -1,6 +1,6 @@
 # ITU2023-DevOps
 ## Group A - Academic Weapons
-### johc, krwi, alkl, bamk
+### johc, krwi, alkl, bamk, jonan, chmj
 
 This project contains the application we will be working on during the DevOps course. It is a small twitter-like application, written in Java with the Spring framework. 
 
