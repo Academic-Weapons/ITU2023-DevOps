@@ -10,7 +10,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.*;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,9 +31,6 @@ public class SQLite {
 
 
 
-//    private Connection connectDb() throws SQLException, ClassNotFoundException {
-//        return DriverManager.getConnection("jdbc:sqlite:" + DATABASE_URL);
-//    }
 
      private Connection connectDb() throws SQLException, ClassNotFoundException {
          Class.forName("com.mysql.jdbc.Driver");
@@ -112,41 +108,38 @@ public class SQLite {
     }
 
 
-    public int insertMessage(int userId, SimData data) throws SQLException, ClassNotFoundException {
+    public void insertMessage(int userId, SimData data) throws SQLException, ClassNotFoundException {
         String query = "INSERT INTO message (author_id, text, pub_date, flagged) VALUES (?, ?, ?, 0)";
         try (Connection conn = connectDb();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, userId);
             stmt.setString(2, data.getContent());
-            stmt.setInt(3, (int) (System.currentTimeMillis()));
-            int rs = stmt.executeUpdate();
-            return rs;
+            stmt.setLong(3, System.currentTimeMillis()/1000);
+            stmt.executeUpdate();
         }
     }
 
-    public int register(Register register) throws SQLException {
+    public void register(Register register) throws SQLException {
         String query = "insert into user (username, email, pw_hash) values (?, ?, ?)";
         try (Connection conn = connectDb();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, register.getUsername());
             stmt.setString(2, register.getEmail());
             stmt.setString(3, passwordEncoder.encode(register.getPwd()));
-            int rs = stmt.executeUpdate();
-            return rs;
+            stmt.executeUpdate();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public int unfollow(int userId, int unfollowsUserId) throws SQLException, ClassNotFoundException {
+    public void unfollow(int userId, int unfollowsUserId) throws SQLException, ClassNotFoundException {
         String query = "DELETE FROM follower WHERE who_id=? AND whom_id=?";
         try (Connection conn = connectDb();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, userId);
             stmt.setInt(2, unfollowsUserId);
 
-            int rs = stmt.executeUpdate();
-            return rs;
+            stmt.executeUpdate();
         }
     }
 
@@ -156,8 +149,7 @@ public class SQLite {
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, userId);
             stmt.setInt(2, followUserId);
-            int rs = stmt.executeUpdate();
-            return rs;
+            return stmt.executeUpdate();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
