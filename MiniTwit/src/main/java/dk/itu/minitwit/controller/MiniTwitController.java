@@ -35,8 +35,43 @@ public class MiniTwitController {
 
 
     @GetMapping("/")
-    public String timeline() {
-        return "redirect:/public";
+    public String timeline(Model model, HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        boolean loggedIn = addUserToModel(model, session);
+        if (!loggedIn) return "redirect:/public";
+
+        List<Object> args = new ArrayList<>();
+
+        args.add(session.getAttribute("user_id"));
+        args.add(session.getAttribute("user_id"));
+        args.add(PER_PAGE);
+        List<Map<String, Object>> messages;
+
+        try {
+            messages = sqLite.queryDb(
+                    "select message.*, " +
+                            "user.* from message, " +
+                            "user where message.flagged = 0 " +
+                            "and message.author_id = user.user_id " +
+                            "and (user.user_id = ? or user.user_id in (select whom_id from follower where who_id = ?))" +
+                            "order by message.pub_date desc limit ?"
+                    , args);
+            System.out.println(messages);
+        } catch (SQLException e) {
+            System.out.println("ERROR_" + e);
+            return "Error";
+
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+//        System.out.println(messages);
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss");
+        addDatesAndGravatarURLs(messages);
+
+        model.addAttribute("messages", messages);
+        model.addAttribute("messagesSize", messages.size());
+
+        return "timeline.html";
     }
 
     @RequestMapping(value = "/public", method = RequestMethod.GET)
@@ -71,18 +106,18 @@ public class MiniTwitController {
     }
 
     @GetMapping("/favourites")
-    public String favourites (HttpServletRequest request, Model model) throws SQLException {
+    public String favourites(HttpServletRequest request, Model model) throws SQLException {
         HttpSession session = request.getSession(false);
         model.addAttribute("public", "false");
         Boolean loggedIn = addUserToModel(model, session);
         if (!loggedIn) {
-            return "redirect:/public"; 
+            return "redirect:/public";
         }
-        
+
         List<Map<String, Object>> messages;
         try {
             List<Object> args = new ArrayList<>();
-            args.add(getUserID((String)session.getAttribute("user")));
+            args.add(getUserID((String) session.getAttribute("user")));
             args.add(PER_PAGE);
             messages = sqLite.queryDb("select message.*, user.* from message inner join user on message.author_id = user.user_id inner join favourite on message.message_id = favourite.message_id where favourite.user_id = ? order by message.pub_date desc limit ?", args);
             System.out.println(messages);
@@ -91,7 +126,7 @@ public class MiniTwitController {
             return "Error";
         }
         addDatesAndGravatarURLs(messages);
-        
+
         model.addAttribute("messages", messages);
         model.addAttribute("messagesSize", messages.size());
 
@@ -105,14 +140,15 @@ public class MiniTwitController {
         model.addAttribute("public", "false");
         model.addAttribute("username", username);
         Boolean loggedIn = addUserToModel(model, session);
-        
+
         List<Object> arg = new ArrayList<>();                                               //
         arg.add(username);                                                                  //
         List<Map<String, Object>> users;                                                    // check if there is a user with this name 
         users = sqLite.queryDb("select * from user where user.username = ?", arg);   // redirect to public if there is no such user
-        if (users.size()==0) return "redirect:/public";                                     // todo redirect to error page insted
-        
-        
+        if (users.size() == 0)
+            return "redirect:/public";                                     // todo redirect to error page insted
+
+
         if (loggedIn) {
             //TODO bliver kaldt af favicon ??
 //            System.out.println("username: " + username);
@@ -223,7 +259,7 @@ public class MiniTwitController {
     @PostMapping("/add_message")
     public String addMessage(AddMessage text, HttpServletRequest request, Model model) throws SQLException {
         HttpSession session = request.getSession(false);
-        
+
 
         if (session != null && session.getAttribute("user_id") == null) {
             //abort 401
@@ -235,19 +271,19 @@ public class MiniTwitController {
             args.add(text.getText());
             args.add(System.currentTimeMillis() / 1000);
             int result = sqLite.updateDb("insert into message (author_id, text, pub_date, flagged) values (?, ?, ?, 0)", args);
-            
+
         }
-        
+
         return "redirect:/public";
     }
-    
+
     @GetMapping("/addMessageToFavourites/{messageID}")
     public String addMessageToFavourites(@PathVariable("messageID") String messageID, HttpServletRequest request, Model model) throws SQLException, ClassNotFoundException {
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("user_id") == null) {
             return "401";
         }
-        
+
         List<Object> args = new ArrayList<>();
         args.add(session.getAttribute("user_id"));
         args.add(messageID);
