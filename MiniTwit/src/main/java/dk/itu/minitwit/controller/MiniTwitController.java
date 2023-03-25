@@ -204,7 +204,6 @@ public class MiniTwitController {
             return true;
         } else {
             model.addAttribute("user", "false");
-            System.out.println("no sesh");
             return false;
         }
     }
@@ -223,7 +222,7 @@ public class MiniTwitController {
     public String followUser(@PathVariable("username") String username, HttpServletRequest request, Model model) throws SQLException, ClassNotFoundException {
         HttpSession session = request.getSession(false);
 //        model.addAttribute("public", "false");
-        Boolean loggedIn = addUserToModel(model, session);
+        boolean loggedIn = addUserToModel(model, session);
 
         if (!loggedIn) return "redirect:/login";
         Integer whomId = getUserID(username);
@@ -241,7 +240,7 @@ public class MiniTwitController {
     public String unfollowUser(@PathVariable("username") String username, HttpServletRequest request, Model model) throws SQLException, ClassNotFoundException {
         HttpSession session = request.getSession(false);
 //        model.addAttribute("public", "false");
-        Boolean loggedIn = addUserToModel(model, session);
+        boolean loggedIn = addUserToModel(model, session);
 
         if (!loggedIn) return "redirect:/login";
         Integer whomId = getUserID(username);
@@ -251,7 +250,7 @@ public class MiniTwitController {
         List<Object> args = new ArrayList<>();
         args.add(session.getAttribute("user_id"));
         args.add(whomId);
-        int result = sqLite.updateDb("delete from follower where who_id=? and whom_id=?", args);
+        sqLite.updateDb("delete from follower where who_id=? and whom_id=?", args);
         return "redirect:/" + username;
 
     }
@@ -270,7 +269,7 @@ public class MiniTwitController {
             args.add(session.getAttribute("user_id"));
             args.add(text.getText());
             args.add(System.currentTimeMillis() / 1000);
-            int result = sqLite.updateDb("insert into message (author_id, text, pub_date, flagged) values (?, ?, ?, 0)", args);
+            sqLite.updateDb("insert into message (author_id, text, pub_date, flagged) values (?, ?, ?, 0)", args);
 
         }
 
