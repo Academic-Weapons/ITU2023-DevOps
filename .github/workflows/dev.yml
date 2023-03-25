@@ -20,12 +20,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    
-      - name: Selenium Test
-        run: |
-           sudo python3 ${{ secrets.TESTS_PATH }}
-
-             
+        
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -88,10 +83,14 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            python3 ${{ secrets.TESTS_PATH }}
             docker pull magmose1/minitwitimagedev:latest
             docker stop minidev || true && docker rm minidev || true
             docker run -d -p 8082:8080 --name minidev magmose1/minitwitimagedev:latest
             docker ps
+            
+            
+      
             
             
 #      - name: Deploy to server
