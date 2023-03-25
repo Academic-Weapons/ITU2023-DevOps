@@ -20,6 +20,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Selenium Test
+        run: |
+           python3 /root/ITU2023-DevOps/MiniTwit/tests/selenium_tests.py
+      
       - name: Checkout
         uses: actions/checkout@v3
 
