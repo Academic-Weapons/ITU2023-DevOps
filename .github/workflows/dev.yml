@@ -23,7 +23,8 @@ jobs:
     
       - name: Selenium Test
         run: |
-           sudo python3 /root/ITU2023-DevOps/MiniTwit/tests/selenium_tests.py
+           sudo python3 ${{ secrets.TESTS_PATH }}
+
              
       - name: Checkout
         uses: actions/checkout@v3
