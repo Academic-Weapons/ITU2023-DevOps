@@ -14,6 +14,8 @@ class MiniTest(unittest.TestCase):
     def setUp(self):
         options = Options()
         options.add_argument('--headless')
+        options.add_arguments("--no-sandbox")
+        options.add_arguments("--disable-dev-shm-usage")
         self.driver = webdriver.Chrome(executable_path="/root/chromedriver",options=options)
         self.rand_username = ''.join(choice(ascii_letters) for _ in range(10))
         self.rand_password = ''.join(choice(ascii_letters) for _ in range(10))
