@@ -7,6 +7,8 @@ import dk.itu.minitwit.domain.Register;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -15,10 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class MiniTwitController {
@@ -32,20 +31,26 @@ public class MiniTwitController {
     private final int PER_PAGE = 30;
 
     SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss");
+    Logger logger = LoggerFactory.getLogger(MiniTwitController.class);
 
 
     @GetMapping("/")
     public String timeline(Model model, HttpServletRequest request) {
+
+        logger.info("Received %s on path: '%s'".formatted(request.getMethod(), request.getRequestURI()));
         HttpSession session = request.getSession(false);
         boolean loggedIn = addUserToModel(model, session);
-        if (!loggedIn) return "redirect:/public";
+        if (!loggedIn) {
+            logger.info("User not logged in, redirecting to '/public'");
+            return "redirect:/public";
+        }
 
         List<Object> args = new ArrayList<>();
 
         args.add(session.getAttribute("user_id"));
         args.add(session.getAttribute("user_id"));
         args.add(PER_PAGE);
-        List<Map<String, Object>> messages;
+        List<Map<String, Object>> messages = null;
 
         try {
             messages = sqLite.queryDb(
@@ -56,74 +61,62 @@ public class MiniTwitController {
                             "and (user.user_id = ? or user.user_id in (select whom_id from follower where who_id = ?))" +
                             "order by message.pub_date desc limit ?"
                     , args);
-            System.out.println(messages);
         } catch (SQLException e) {
-            System.out.println("ERROR_" + e);
-            return "Error";
-
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            logger.error("Encountered error while querying database: " +e.getMessage() + "\n"+ Arrays.toString(e.getStackTrace()));
         }
 //        System.out.println(messages);
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss");
         addDatesAndGravatarURLs(messages);
 
         model.addAttribute("messages", messages);
         model.addAttribute("messagesSize", messages.size());
+        logger.info("User not logged in, redirecting to '/public'");
 
         return "timeline.html";
     }
 
     @RequestMapping(value = "/public", method = RequestMethod.GET)
     public Object publicTimeline(Model model, HttpServletRequest request) {
-
+        logger.info("Received %s on path: '%s'".formatted(request.getMethod(), request.getRequestURI()));
         model.addAttribute("public", "true");
         HttpSession session = request.getSession(false);
         addUserToModel(model, session);
 
-//        System.out.println("model things: " + model.getAttribute("user"));
         List<Object> args = new ArrayList<>();
         args.add(PER_PAGE);
-        List<Map<String, Object>> messages;
+        List<Map<String, Object>> messages = null;
         try {
             messages = sqLite.queryDb("select message.*, user.* from message, user where message.flagged = 0 and message.author_id = user.user_id order by message.pub_date desc limit ?", args);
-            System.out.println(messages);
         } catch (SQLException e) {
-            System.out.println("ERROR_" + e);
-            return "Error";
-
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            logger.error("Encountered error while querying database: " + e.getMessage() + "\n" + Arrays.toString(e.getStackTrace()));
         }
 //        System.out.println(messages);
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss");
         addDatesAndGravatarURLs(messages);
 
         model.addAttribute("messages", messages);
         model.addAttribute("messagesSize", messages.size());
-
-        return "timeline.html";
+        String template = "timeline.html";
+        logger.info("Returning template: %s".formatted(template));
+        return template;
     }
 
     @GetMapping("/favourites")
-    public String favourites(HttpServletRequest request, Model model) throws SQLException {
+    public String favourites(HttpServletRequest request, Model model) {
+        logger.info("Received %s on path: '%s'".formatted(request.getMethod(), request.getRequestURI()));
         HttpSession session = request.getSession(false);
         model.addAttribute("public", "false");
-        Boolean loggedIn = addUserToModel(model, session);
+        boolean loggedIn = addUserToModel(model, session);
         if (!loggedIn) {
             return "redirect:/public";
         }
 
-        List<Map<String, Object>> messages;
+        List<Map<String, Object>> messages = null;
         try {
             List<Object> args = new ArrayList<>();
             args.add(getUserID((String) session.getAttribute("user")));
             args.add(PER_PAGE);
             messages = sqLite.queryDb("select message.*, user.* from message inner join user on message.author_id = user.user_id inner join favourite on message.message_id = favourite.message_id where favourite.user_id = ? order by message.pub_date desc limit ?", args);
-            System.out.println(messages);
-        } catch (SQLException | ClassNotFoundException e) {
-            System.out.println("ERROR_" + e);
-            return "Error";
+        } catch (SQLException e) {
+            logger.error("Encountered error while querying database: " + e.getMessage() + "\n" + Arrays.toString(e.getStackTrace()));
         }
         addDatesAndGravatarURLs(messages);
 
@@ -135,53 +128,63 @@ public class MiniTwitController {
 
 
     @GetMapping("/{username}")
-    public String userTimeLine(@PathVariable("username") String username, HttpServletRequest request, Model model) throws SQLException, ClassNotFoundException {
+    public String userTimeLine(@PathVariable("username") String username, HttpServletRequest request, Model model) {
+        logger.info("Received %s on path: '%s'".formatted(request.getMethod(), request.getRequestURI()));
         HttpSession session = request.getSession(false);
         model.addAttribute("public", "false");
         model.addAttribute("username", username);
-        Boolean loggedIn = addUserToModel(model, session);
+        boolean loggedIn = addUserToModel(model, session);
 
         List<Object> arg = new ArrayList<>();                                               //
         arg.add(username);                                                                  //
-        List<Map<String, Object>> users;                                                    // check if there is a user with this name 
-        users = sqLite.queryDb("select * from user where user.username = ?", arg);   // redirect to public if there is no such user
+        List<Map<String, Object>> users;                                                    // check if there is a user with this name
+        try {
+            users = sqLite.queryDb("select * from user where user.username = ?", arg);   // redirect to public if there is no such user
+        } catch (SQLException e) {
+            logger.error("Encountered error while querying database: " + e.getMessage() + "\n" + Arrays.toString(e.getStackTrace()));
+        }
+
         if (users.size() == 0)
             return "redirect:/public";                                     // todo redirect to error page insted
 
 
         if (loggedIn) {
-            //TODO bliver kaldt af favicon ??
-//            System.out.println("username: " + username);
-            if (username.equals("favicon.ico")) return "redirect:/public";
 
+            int otherId = 0;
+            try {
+                otherId = getUserID(username);
+            } catch (SQLException e) {
+                logger.error("Encountered error while querying database: " + e.getMessage() + "\n" + Arrays.toString(e.getStackTrace()));
+            }
 
-            int otherId = getUserID(username);
             if ((int) session.getAttribute("user_id") == otherId) {
                 model.addAttribute("self", "true");
                 model.addAttribute("followed", "false");
             } else {
-
                 List<Object> args = new ArrayList<>();
                 args.add(session.getAttribute("user_id"));
                 args.add(otherId);
 
-                List<Map<String, Object>> followed;
-                followed = sqLite.queryDb("select * from follower where follower.who_id = ? and follower.whom_id = ?", args);
+                List<Map<String, Object>> followed = null;
+                try {
+                    followed = sqLite.queryDb("select * from follower where follower.who_id = ? and follower.whom_id = ?", args);
+                } catch (SQLException e) {
+                    logger.error("Encountered error while querying database: " + e.getMessage() + "\n" + Arrays.toString(e.getStackTrace()));
+                }
                 model.addAttribute("followed", followed.size() > 0 ? "true" : "false");
             }
         }
         List<Object> args = new ArrayList<>();
         args.add(username);
         args.add(PER_PAGE);
-        List<Map<String, Object>> messages;
+        List<Map<String, Object>> messages = null;
         try {
             messages = sqLite.queryDb("select message.*, user.* from message, user where user.username = ? and message.flagged = 0 and message.author_id = user.user_id order by message.pub_date desc limit ?", args);
             System.out.println(messages);
-        } catch (SQLException | ClassNotFoundException e) {
-            System.out.println("ERROR_" + e);
-            return "Error";
+        } catch (SQLException e) {
+            logger.error("Encountered error while querying database: " + e.getMessage() + "\n" + Arrays.toString(e.getStackTrace()));
         }
-//        System.out.println(messages);
+
         addDatesAndGravatarURLs(messages);
 
         model.addAttribute("messages", messages);
@@ -189,12 +192,11 @@ public class MiniTwitController {
         return "timeline.html";
     }
 
-    private int getUserID(String username) throws SQLException, ClassNotFoundException {
+    private int getUserID(String username) throws SQLException {
         List<Object> args = new ArrayList<>();
         args.add(username);
         List<Map<String, Object>> userIDs;
         userIDs = sqLite.queryDb("select user_id from user where username = ?", args);
-//        System.out.println("ids: " + userIDs.get(0).get("user_id"));
         return ((int) userIDs.get(0).get("user_id"));
     }
 
