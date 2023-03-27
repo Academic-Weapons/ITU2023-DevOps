@@ -93,8 +93,6 @@ public class SimulatorController {
             return ResponseEntity.ok(messages);
         } catch (SQLException e) {
             return internalErrorResponse(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -253,7 +251,7 @@ public class SimulatorController {
             } else {
                 return ResponseEntity.ok().body(followersResponse);
             }
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException  e) {
 
             return ResponseEntity.internalServerError().body(e);
         }
