@@ -8,10 +8,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -87,7 +89,6 @@ public class MiniTwitController {
         List<Map<String, Object>> messages;
         try {
             messages = sqLite.queryDb("select message.*, user.* from message, user where message.flagged = 0 and message.author_id = user.user_id order by message.pub_date desc limit ?", args);
-            System.out.println(messages);
         } catch (SQLException e) {
             System.out.println("ERROR_" + e);
             return "Error";
@@ -141,13 +142,15 @@ public class MiniTwitController {
         model.addAttribute("username", username);
         Boolean loggedIn = addUserToModel(model, session);
 
-        List<Object> arg = new ArrayList<>();                                               //
-        arg.add(username);                                                                  //
-        List<Map<String, Object>> users;                                                    // check if there is a user with this name 
-        users = sqLite.queryDb("select * from user where user.username = ?", arg);   // redirect to public if there is no such user
-        if (users.size() == 0)
-            return "redirect:/public";                                     // todo redirect to error page insted
-
+        List<Object> arg = new ArrayList<>();                                             
+        arg.add(username);                                                                
+        List<Map<String, Object>> users;                                                    // Check if there is a user with this name 
+        users = sqLite.queryDb("select * from user where user.username = ?", arg);          // Raise error if no such user
+        if (users.size() == 0){
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "User not found"
+            );                                                          
+        }
 
         if (loggedIn) {
             //TODO bliver kaldt af favicon ??
