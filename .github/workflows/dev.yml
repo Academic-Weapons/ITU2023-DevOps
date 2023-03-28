@@ -36,8 +36,7 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
             SONARQUBE_ORGANIZATION: ${{ secrets.SONARQUBE_ORGANIZATION }}
-          run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=SONARQUBE_ORGANIZATION -Dsonar.projectKey=Academic-Weapons_ITU2023-DevOps
-          
+          run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=SONARQUBE_ORGANIZATION -Dsonar.projectKey=Academic-Weapons_ITU2023-DevOps -Dsonar.host.url=https://sonarcloud.io           
   build:
     runs-on: ubuntu-latest
 
