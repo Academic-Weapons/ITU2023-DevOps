@@ -21,7 +21,7 @@ jobs:
       runs-on: ubuntu-latest
       steps:
       - name: Checking out
-        uses: actions/checkout@master
+        uses: actions/checkout@dev
         with:
           # Disabling shallow clone is recommended for improving relevancy of reporting
           fetch-depth: 0
@@ -30,6 +30,7 @@ jobs:
         with:
           host: ${{ secrets.SONARQUBE_HOST }}
           login: ${{ secrets.SONARQUBE_TOKEN }}
+          organization: ${{ secrets.SONARQUBE_ORGANIZATION }}
           projectBaseDir: "MiniTwit"
           
   build:
