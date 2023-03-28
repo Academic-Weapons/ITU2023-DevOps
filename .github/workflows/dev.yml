@@ -28,6 +28,8 @@ jobs:
           with:
             java-version: 11
             distribution: 'zulu' # Alternative distribution options are available.
+        - name: Change working directory to project base directory
+          run: cd MiniTwit
         - name: Cache SonarCloud packages
           uses: actions/cache@v3
           with:
@@ -45,7 +47,7 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
             SONARQUBE_ORGANIZATION: ${{ secrets.SONARQUBE_ORGANIZATION }}
-          run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=SONARQUBE_ORGANIZATION -Dsonar.projectKey=Academic-Weapons_ITU2023-DevOps -Dsonar.projectBaseDir=MiniTwit -X
+          run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=SONARQUBE_ORGANIZATION -Dsonar.projectKey=Academic-Weapons_ITU2023-DevOps
           
   build:
     runs-on: ubuntu-latest
