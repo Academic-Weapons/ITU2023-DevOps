@@ -10,12 +10,13 @@
     </parent>
     <groupId>dk.itu</groupId>
     <artifactId>MiniTwit</artifactId>
-    <version>0.0.5</version>
+    <version>1.0.3</version>
     <packaging>war</packaging>
     <name>MiniTwit</name>
     <description>MiniTwit</description>
     <properties>
         <java.version>17</java.version>
+        <maven.compiler.target>11</maven.compiler.target>
     </properties>
     <dependencies>
         <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
