@@ -10,10 +10,12 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -182,10 +184,10 @@ public class MiniTwitController {
         logger.info("Request ID: %s -- Queried database in %.2f seconds"
                 .formatted(model.getAttribute("requestID"), getDuration(before, after)));
 
-        if (users.size() == 0) {
-            logger.info("Request ID: %s -- User: %s not found - redirecting to public"
-                    .formatted(model.getAttribute("requestID"), username));
-            return "redirect:/public";
+        if (users.size() == 0){
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND, "User not found"
+            ); 
         }
 
         if (loggedIn) {
