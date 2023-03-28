@@ -3,35 +3,40 @@ name: Continuous Development
 
 on:
   push:
-    # Run workflow every time something is pushed to the main branch
     branches:
       - dev
-  # allow manual triggers for now too
-# Remember to set the following secrets in your repository's settings:
-# https://github.com/your_username/itu-minitwit-ci/settings/secrets/actions
-# DOCKER_USERNAME
-# DOCKER_PASSWORD
-# SSH_USER
-# SSH_KEY
-# SSH_HOST
-
 jobs:
   sonarqube:
       name: SonarQube Trigger
       runs-on: ubuntu-latest
       steps:
-      - name: Checking out
-        uses: actions/checkout@master
-        with:
-          # Disabling shallow clone is recommended for improving relevancy of reporting
-          fetch-depth: 0
-      - name: SonarQube Scan
-        uses: kitabisa/sonarqube-action@v1.2.0
-        with:
-          host: ${{ secrets.SONARQUBE_HOST }}
-          login: ${{ secrets.SONARQUBE_TOKEN }}
-          projectBaseDir: "MiniTwit"
-          
+        - uses: actions/checkout@v3
+          with:
+            fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+        - name: Set up JDK 11
+          uses: actions/setup-java@v3
+          with:
+            java-version: 11
+            distribution: 'zulu' # Alternative distribution options are available.
+        - name: Cache SonarCloud packages
+          uses: actions/cache@v3
+          with:
+            path: ~/.sonar/cache
+            key: ${{ runner.os }}-sonar
+            restore-keys: ${{ runner.os }}-sonar
+        - name: Cache Maven packages
+          uses: actions/cache@v3
+          with:
+            path: ~/.m2
+            key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+            restore-keys: ${{ runner.os }}-m2
+        - name: Build and analyze
+          working-directory: ./MiniTwit
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+            SONARQUBE_ORGANIZATION: ${{ secrets.SONARQUBE_ORGANIZATION }}
+          run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=academic-weapons -Dsonar.projectKey=Academic-Weapons_ITU2023-DevOps -Dsonar.host.url=https://sonarcloud.io           
   build:
     runs-on: ubuntu-latest
 

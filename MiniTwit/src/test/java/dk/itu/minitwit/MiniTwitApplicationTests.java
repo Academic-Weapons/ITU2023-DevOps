@@ -1,23 +1,29 @@
-package dk.itu.minitwit;
-import org.springframework.boot.test.context.SpringBootTest;
-
-@SpringBootTest
-class MiniTwitApplicationTests {
+//package dk.itu.minitwit;
 //
-//    @Test
-//    void contextLoads() {
+//import dk.itu.minitwit.database.SQLite;
+//import dk.itu.minitwit.domain.SimData;
+//import org.junit.jupiter.api.Test;
+//import org.springframework.boot.test.context.SpringBootTest;
 //
-//    }
+//import java.sql.SQLException;
 //
-//    @Test
-//    void simInsertWorksAsIntended () throws SQLException, ClassNotFoundException {
-//        SQLite sql = new SQLite();
-//        SimData data = new SimData();
-//        data.setContent("asd dsa ");
+//@SpringBootTest
+//class MiniTwitApplicationTests {
+////
+////    @Test
+////    void contextLoads() {
+////
+////    }
+////
+////    @Test
+////    void simInsertWorksAsIntended () throws SQLException, ClassNotFoundException {
+////        SQLite sql = new SQLite();
+////        SimData data = new SimData();
+////        data.setContent("asd dsa ");
+////
+////        sql.insertMessage(1, data);
+////    }
 //
-//        sql.insertMessage(1, data);
-//    }
-
-
-
-}
+//
+//
+//}
