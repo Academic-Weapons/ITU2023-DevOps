@@ -3,18 +3,8 @@ name: Continuous Development
 
 on:
   push:
-    # Run workflow every time something is pushed to the main branch
     branches:
       - dev
-  # allow manual triggers for now too
-# Remember to set the following secrets in your repository's settings:
-# https://github.com/your_username/itu-minitwit-ci/settings/secrets/actions
-# DOCKER_USERNAME
-# DOCKER_PASSWORD
-# SSH_USER
-# SSH_KEY
-# SSH_HOST
-
 jobs:
   sonarqube:
       name: SonarQube Trigger
