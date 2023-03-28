@@ -25,12 +25,11 @@ import java.util.*;
 public class MiniTwitController {
 
     @Autowired
-    SQLite sqLite;
+    protected SQLite sqLite;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    @Autowired PasswordEncoder passwordEncoder;
 
-    private final int PER_PAGE = 30;
+    final static int PER_PAGE = 30;
 
     SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm:ss");
     Logger logger = LoggerFactory.getLogger(MiniTwitController.class);
@@ -563,7 +562,7 @@ public class MiniTwitController {
         return UUID.randomUUID().toString();
     }
 
-    private int getUserID(String username) throws SQLException {
+    public int getUserID(String username) throws SQLException {
         List<Object> args = new ArrayList<>();
         args.add(username);
         List<Map<String, Object>> userIDs;
@@ -571,7 +570,7 @@ public class MiniTwitController {
         return ((int) userIDs.get(0).get("user_id"));
     }
 
-    private static boolean addUserToModel(Model model, HttpSession session) {
+    public static boolean addUserToModel(Model model, HttpSession session) {
         if (session != null) {
             model.addAttribute("user", session.getAttribute("user"));
             return true;
@@ -581,7 +580,7 @@ public class MiniTwitController {
         }
     }
 
-    private void addDatesAndGravatarURLs(List<Map<String, Object>> messages) {
+    public void addDatesAndGravatarURLs(List<Map<String, Object>> messages) {
         messages.forEach(obj -> {
             String email = (String) obj.get("email");
             Long created = ((Number) obj.get("pub_date")).longValue();
