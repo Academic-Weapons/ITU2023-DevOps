@@ -215,7 +215,7 @@ public class SimulatorController {
             if (followsUserId == 0) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            int rs = sqLite.follow(userId, followsUserId);
+            sqLite.follow(userId, followsUserId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (SQLException | ClassNotFoundException e) {
             return ResponseEntity.internalServerError().body(e);
