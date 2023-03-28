@@ -8,10 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.sql.*;
 import java.util.*;
 
@@ -23,8 +19,6 @@ public class SQLite {
 
 
     private final String DATABASE_URL = "mysql://db-minitwit-do-user-13625042-0.b.db.ondigitalocean.com:25060/defaultdb?ssl-mode=REQUIRED";
-    private final boolean DEBUG = true;
-    private final String SECRET_KEY = "development key";
 
     @Autowired
     private PasswordEncoder passwordEncoder;
