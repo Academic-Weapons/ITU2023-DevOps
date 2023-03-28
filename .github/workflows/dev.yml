@@ -45,7 +45,7 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
             SONARQUBE_ORGANIZATION: ${{ secrets.SONARQUBE_ORGANIZATION }}
-          run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=SONARQUBE_ORGANIZATION -Dsonar.projectKey=Academic-Weapons_ITU2023-DevOps -Dsonar.projectBaseDir=MiniTwit
+          run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.organization=SONARQUBE_ORGANIZATION -Dsonar.projectKey=Academic-Weapons_ITU2023-DevOps -Dsonar.projectBaseDir=MiniTwit -X
           
   build:
     runs-on: ubuntu-latest
