@@ -27,7 +27,8 @@ public class MiniTwitController {
     @Autowired
     protected SQLite sqLite;
 
-    @Autowired PasswordEncoder passwordEncoder;
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     final static int PER_PAGE = 30;
 
@@ -37,24 +38,24 @@ public class MiniTwitController {
 
     @GetMapping("/")
     public String timeline(Model model, HttpServletRequest request) {
-        logger.info("Request ID: %s -- Received %s request on path: '%s'"
-                .format((String) model.getAttribute("requestID"), request.getMethod(), request.getRequestURI()));
-        HttpSession session = request.getSession(false);
-        boolean loggedIn = addUserToModel(model, session);
-        if (!loggedIn) {
-            logger.info("Request ID: %s -- User not logged in, redirecting to '/public'".format((String) model.getAttribute("requestID")));
-            return "redirect:/public";
-        }
-
-        List<Object> args = new ArrayList<>();
-
-        args.add(session.getAttribute("user_id"));
-        args.add(session.getAttribute("user_id"));
-        args.add(PER_PAGE);
-        List<Map<String, Object>> messages = null;
-        long before = System.currentTimeMillis();
-        logger.info("Request ID: %s -- Querying database...".format((String) model.getAttribute("requestID")));
         try {
+            logger.info("Request ID: %s -- Received %s request on path: '%s'"
+                    .format((String) model.getAttribute("requestID"), request.getMethod(), request.getRequestURI()));
+            HttpSession session = request.getSession(false);
+            boolean loggedIn = addUserToModel(model, session);
+            if (!loggedIn) {
+                logger.info("Request ID: %s -- User not logged in, redirecting to '/public'".format((String) model.getAttribute("requestID")));
+                return "redirect:/public";
+            }
+
+            List<Object> args = new ArrayList<>();
+
+            args.add(session.getAttribute("user_id"));
+            args.add(session.getAttribute("user_id"));
+            args.add(PER_PAGE);
+            List<Map<String, Object>> messages = null;
+            long before = System.currentTimeMillis();
+            logger.info("Request ID: %s -- Querying database...".format((String) model.getAttribute("requestID")));
             messages = sqLite.queryDb(
                     "select message.*, " +
                             "user.* from message, " +
@@ -63,17 +64,18 @@ public class MiniTwitController {
                             "and (user.user_id = ? or user.user_id in (select whom_id from follower where who_id = ?))" +
                             "order by message.pub_date desc limit ?"
                     , args);
-        } catch (SQLException e) {
+
+            long after = System.currentTimeMillis();
+            logger.info("Request ID: %s -- Queried database in %.2f seconds"
+                    .format((String) model.getAttribute("requestID"), getDuration(before, after)));
+            addDatesAndGravatarURLs(messages);
+
+            model.addAttribute("messages", messages);
+            model.addAttribute("messagesSize", messages.size());
+        } catch (SQLException | NullPointerException e) {
             logger.error("Request ID: %s -- Encountered error while querying database: " + e.getMessage() +
                     "\n" + Arrays.toString(e.getStackTrace()).format((String) model.getAttribute("requestID")));
         }
-        long after = System.currentTimeMillis();
-        logger.info("Request ID: %s -- Queried database in %.2f seconds"
-                .format((String) model.getAttribute("requestID"), getDuration(before, after)));
-        addDatesAndGravatarURLs(messages);
-
-        model.addAttribute("messages", messages);
-        model.addAttribute("messagesSize", messages.size());
         String template = "timeline.html";
         logger.info("Request ID: %s -- Returning template: %s".format((String) model.getAttribute("requestID"), template));
         return template;
@@ -81,34 +83,36 @@ public class MiniTwitController {
 
     @RequestMapping(value = "/public", method = RequestMethod.GET)
     public Object publicTimeline(Model model, HttpServletRequest request) {
-        logger.info("Request ID: %s -- Received %s request on path: '%s'"
-                .format((String) model.getAttribute("requestID"), request.getMethod(), request.getRequestURI()));
-        model.addAttribute("public", "true");
-        HttpSession session = request.getSession(false);
-        addUserToModel(model, session);
-
-        List<Object> args = new ArrayList<>();
-        args.add(PER_PAGE);
-        List<Map<String, Object>> messages = null;
-        long before = System.currentTimeMillis();
-        logger.info("Request ID: %s -- Querying database...".format((String) model.getAttribute("requestID")));
         try {
+            logger.info("Request ID: %s -- Received %s request on path: '%s'"
+                    .format((String) model.getAttribute("requestID"), request.getMethod(), request.getRequestURI()));
+            model.addAttribute("public", "true");
+            HttpSession session = request.getSession(false);
+            addUserToModel(model, session);
+
+            List<Object> args = new ArrayList<>();
+            args.add(PER_PAGE);
+            List<Map<String, Object>> messages = null;
+            long before = System.currentTimeMillis();
+            logger.info("Request ID: %s -- Querying database...".format((String) model.getAttribute("requestID")));
+
             messages = sqLite.queryDb(
                     "select message.*, user.* from message, user " +
                             "where message.flagged = 0 and message.author_id = user.user_id " +
                             "order by message.pub_date desc limit ?", args);
-        } catch (SQLException e) {
+
+            long after = System.currentTimeMillis();
+            logger.info("Request ID: %s -- Queried database in %.2f seconds"
+                    .format((String) model.getAttribute("requestID"), getDuration(before, after)));
+            addDatesAndGravatarURLs(messages);
+
+            model.addAttribute("messages", messages);
+            model.addAttribute("messagesSize", messages.size());
+        } catch (SQLException | NullPointerException e){
             logger.error(
                     "Request ID: %s -- Encountered error while querying database: " + e.getMessage() +
                             "\n" + Arrays.toString(e.getStackTrace()).format((String) model.getAttribute("requestID")));
         }
-        long after = System.currentTimeMillis();
-        logger.info("Request ID: %s -- Queried database in %.2f seconds"
-                .format((String) model.getAttribute("requestID"), getDuration(before, after)));
-        addDatesAndGravatarURLs(messages);
-
-        model.addAttribute("messages", messages);
-        model.addAttribute("messagesSize", messages.size());
         String template = "timeline.html";
         logger.info("Request ID: %s -- Returning template: %s".format((String) model.getAttribute("requestID"), template));
         return template;
@@ -116,6 +120,7 @@ public class MiniTwitController {
 
     @GetMapping("/favourites")
     public String favourites(HttpServletRequest request, Model model) {
+        try {
         logger.info("Request ID: %s -- Received %s request on path: '%s'"
                 .format((String) model.getAttribute("requestID"), request.getMethod(), request.getRequestURI()));
         HttpSession session = request.getSession(false);
@@ -130,7 +135,7 @@ public class MiniTwitController {
         List<Map<String, Object>> messages = null;
         long before = System.currentTimeMillis();
         logger.info("Request ID: %s -- Querying database...".format((String) model.getAttribute("requestID")));
-        try {
+
             List<Object> args = new ArrayList<>();
             args.add(getUserID((String) session.getAttribute("user")));
             args.add(PER_PAGE);
@@ -142,10 +147,7 @@ public class MiniTwitController {
                             "where favourite.user_id = ? " +
                             "order by message.pub_date desc limit ?"
                     , args);
-        } catch (SQLException e) {
-            logger.error("Request ID: %s -- Encountered error while querying database: " + e.getMessage() +
-                    "\n" + Arrays.toString(e.getStackTrace()).format((String) model.getAttribute("requestID")));
-        }
+
         long after = System.currentTimeMillis();
         logger.info("Request ID: %s -- Queried database in %.2f seconds"
                 .format((String) model.getAttribute("requestID"), getDuration(before, after)));
@@ -153,6 +155,10 @@ public class MiniTwitController {
 
         model.addAttribute("messages", messages);
         model.addAttribute("messagesSize", messages.size());
+        } catch (SQLException | NullPointerException e) {
+            logger.error("Request ID: %s -- Encountered error while querying database: " + e.getMessage() +
+                    "\n" + Arrays.toString(e.getStackTrace()).format((String) model.getAttribute("requestID")));
+        }
         String template = "favourites.html";
         logger.info("Request ID: %s -- Returning template: %s".format((String) model.getAttribute("requestID"), template));
         return template;
@@ -183,10 +189,10 @@ public class MiniTwitController {
         logger.info("Request ID: %s -- Queried database in %.2f seconds"
                 .format((String) model.getAttribute("requestID"), getDuration(before, after)));
 
-        if (users.size() == 0){
+        if (users.size() == 0) {
             throw new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "User not found"
-            ); 
+                    HttpStatus.NOT_FOUND, "User not found"
+            );
         }
 
         if (loggedIn) {
@@ -229,10 +235,11 @@ public class MiniTwitController {
         List<Object> args = new ArrayList<>();
         args.add(username);
         args.add(PER_PAGE);
+        try {
         List<Map<String, Object>> messages = null;
         before = System.currentTimeMillis();
         logger.info("Request ID: %s -- Querying database...".format((String) model.getAttribute("requestID")));
-        try {
+
             messages = sqLite.queryDb(
                     "select message.*, " +
                             "user.* from message, user " +
@@ -241,10 +248,7 @@ public class MiniTwitController {
                             "and message.author_id = user.user_id " +
                             "order by message.pub_date desc limit ?"
                     , args);
-        } catch (SQLException e) {
-            logger.error("Request ID: %s -- Encountered error while querying database: " + e.getMessage() +
-                    "\n" + Arrays.toString(e.getStackTrace()).format((String) model.getAttribute("requestID")));
-        }
+
         after = System.currentTimeMillis();
         logger.info("Request ID: %s -- Queried database in %.2f seconds"
                 .format((String) model.getAttribute("requestID"), getDuration(before, after)));
@@ -252,7 +256,10 @@ public class MiniTwitController {
 
         model.addAttribute("messages", messages);
         model.addAttribute("messagesSize", messages.size());
-
+        } catch (SQLException | NullPointerException e) {
+            logger.error("Request ID: %s -- Encountered error while querying database: " + e.getMessage() +
+                    "\n" + Arrays.toString(e.getStackTrace()).format((String) model.getAttribute("requestID")));
+        }
         String template = "timeline.html";
         logger.info("Request ID: %s -- Returning template: %s".format((String) model.getAttribute("requestID"), template));
         return template;
