@@ -15,3 +15,15 @@ In the [worklogs](https://github.com/Magmose/ITU2023-DevOps/tree/dev/worklogs) d
 - [Worklog week 7 - Sofware quailtiy and maintainability](./Worklogs/session07/README.md)
 - [Worklog week 8 - Logging](./Worklogs/session08/README.md)
 - [Worklog week 9 - Security](./Worklogs/session09/README.md)
+- [Worklog week 10 - Scaling](./Worklogs/session10/README.md)
+- [Worklog week 12 - Infrastructure as Code](./Worklogs/session12/README.md)
+- [Worklog week 13 - Documentation of Systems and Projects](./Worklogs/session13/README.md)
+
+## Links
+- [Public timeline](http://146.190.207.33:public)
+- [Logging]()
+- [Codeclimate](https://codeclimate.com/github/Academic-Weapons/ITU2023-DevOps)
+- [Sonarqube](https://sonarcloud.io/organizations/academic-weapons/projects)
+- [Security analysis](./Worklogs/session09/SecurityAnalysis.md)
+- [Prometheus](http://146.190.207.33:9090)
+- [Grafana](http://146.190.207.33:3000)
