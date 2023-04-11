@@ -47,7 +47,7 @@ public class MiniTwitControllerTests {
     Register register;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         miniTwitController = new MiniTwitController();
         request = mock(HttpServletRequest.class);
         login = mock(Login.class);
@@ -122,7 +122,7 @@ public class MiniTwitControllerTests {
     // }
 
     @Test
-    public void testAddMessageToFavouritesNotLoggedIn() {
+    void testAddMessageToFavouritesNotLoggedIn() {
         when(request.getSession(false)).thenReturn(session);
         when(model.getAttribute("requestID")).thenReturn(UUID.randomUUID().toString());
 
@@ -134,7 +134,7 @@ public class MiniTwitControllerTests {
     }
 
     @Test
-    public void testAddMessageToFavouritesLoggedIn() {
+    void testAddMessageToFavouritesLoggedIn() {
         when(request.getSession(false)).thenReturn(session);
         when(session.getAttribute("user")).thenReturn("testUser");
         when(session.getAttribute("user_id")).thenReturn(1);
@@ -150,7 +150,7 @@ public class MiniTwitControllerTests {
     }
 
     @Test
-    public void testLoginPostMethodInvalidUsername() throws SQLException {
+    void testLoginPostMethodInvalidUsername() throws SQLException {
         when(request.getMethod()).thenReturn("POST");
         when(model.getAttribute("requestID")).thenReturn(UUID.randomUUID().toString());
         when(request.getSession()).thenReturn(session);
@@ -170,7 +170,7 @@ public class MiniTwitControllerTests {
     }
 
     @Test
-    public void testLoginPostMethodSuccessfulLogin() throws SQLException {
+    void testLoginPostMethodSuccessfulLogin() throws SQLException {
         when(request.getMethod()).thenReturn("POST");
         when(model.getAttribute("requestID")).thenReturn(UUID.randomUUID().toString());
         when(request.getSession()).thenReturn(session);
@@ -197,7 +197,7 @@ public class MiniTwitControllerTests {
     }
 
     @Test
-    public void testLoginPostMethodInvalidPassword() throws SQLException {
+    void testLoginPostMethodInvalidPassword() throws SQLException {
         when(request.getMethod()).thenReturn("POST");
         when(model.getAttribute("requestID")).thenReturn(UUID.randomUUID().toString());
         when(request.getSession()).thenReturn(session);
@@ -224,7 +224,7 @@ public class MiniTwitControllerTests {
     }
 
     @Test
-    public void testRegisterGetMethod() {
+    void testRegisterGetMethod() {
         when(request.getMethod()).thenReturn("GET");
         when(model.getAttribute("requestID")).thenReturn(UUID.randomUUID().toString());
 
@@ -236,7 +236,7 @@ public class MiniTwitControllerTests {
     }
 
     @Test
-    public void testRegisterPostMethod() {
+    void testRegisterPostMethod() {
         when(request.getMethod()).thenReturn("POST");
         when(model.getAttribute("requestID")).thenReturn(UUID.randomUUID().toString());
 
@@ -259,7 +259,7 @@ public class MiniTwitControllerTests {
     }
 
     @Test
-    public void testRegisterPostMethodEmptyUsername() {
+    void testRegisterPostMethodEmptyUsername() {
         // Arrange
         HttpServletRequest request = mock(HttpServletRequest.class);
         Model model = mock(Model.class);
@@ -281,7 +281,7 @@ public class MiniTwitControllerTests {
     }
 
     @Test
-    public void testRegisterPostMethodEmptyEmail() {
+    void testRegisterPostMethodEmptyEmail() {
         when(request.getMethod()).thenReturn("POST");
         when(model.getAttribute("requestID")).thenReturn(UUID.randomUUID().toString());
 
@@ -298,7 +298,7 @@ public class MiniTwitControllerTests {
     }
 
     @Test
-    public void testRegisterPostMethodEmptyPassword() {
+    void testRegisterPostMethodEmptyPassword() {
         when(request.getMethod()).thenReturn("POST");
         when(model.getAttribute("requestID")).thenReturn(UUID.randomUUID().toString());
 
@@ -315,7 +315,7 @@ public class MiniTwitControllerTests {
     }
 
     @Test
-    public void testRegisterPostMethodMismatchedPasswords() {
+    void testRegisterPostMethodMismatchedPasswords() {
         when(request.getMethod()).thenReturn("POST");
         when(model.getAttribute("requestID")).thenReturn(UUID.randomUUID().toString());
 
@@ -332,7 +332,7 @@ public class MiniTwitControllerTests {
     }
 
     @Test
-    public void testLogout() {
+    void testLogout() {
         when(request.getMethod()).thenReturn("GET");
         when(request.getRequestURI()).thenReturn("/logout");
         when(request.getSession()).thenReturn(session);
@@ -347,7 +347,7 @@ public class MiniTwitControllerTests {
     }
 
     @Test
-    public void testRequestId() {
+    void testRequestId() {
         // Act
         String requestId = miniTwitController.requestId();
 
@@ -357,7 +357,7 @@ public class MiniTwitControllerTests {
     }
 
     @Test
-    public void testGetUserID() throws SQLException {
+    void testGetUserID() throws SQLException {
         // Arrange
         String username = "testUser";
         int expectedUserId = 42;
@@ -380,7 +380,7 @@ public class MiniTwitControllerTests {
     }
 
     @Test
-    public void testAddUserToModelWithSession() {
+    void testAddUserToModelWithSession() {
         Model model = mock(Model.class);
         HttpSession session = mock(HttpSession.class);
         String sampleUser = "testUser";
@@ -394,7 +394,7 @@ public class MiniTwitControllerTests {
     }
 
     @Test
-    public void testAddUserToModelWithoutSession() {
+    void testAddUserToModelWithoutSession() {
         Model model = mock(Model.class);
         HttpSession session = null;
 
@@ -405,7 +405,7 @@ public class MiniTwitControllerTests {
     }
 
     @Test
-    public void testAddDatesAndGravatarURLs() {
+    void testAddDatesAndGravatarURLs() {
         List<Map<String, Object>> messages = new ArrayList<>();
         Map<String, Object> message = new HashMap<>();
         message.put("email", "test@example.com");
@@ -428,7 +428,7 @@ public class MiniTwitControllerTests {
     }
 
     @Test
-    public void testGetMD5Hash() {
+    void testGetMD5Hash() {
         String email = "test@example.com";
         String expectedHash = DigestUtils.md5Hex(email.toLowerCase());
         String actualHash = miniTwitController.getMD5Hash(email);
@@ -436,7 +436,7 @@ public class MiniTwitControllerTests {
     }
 
     @Test
-    public void testGetDuration() {
+    void testGetDuration() {
         long before = 1616701200000L; // March 25, 2021 12:00:00 AM UTC
         long after = 1616704800000L; // March 25, 2021 1:00:00 AM UTC
         double expected = 3600.0;
