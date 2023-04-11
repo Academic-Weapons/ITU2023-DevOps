@@ -1,7 +1,9 @@
 # Session 06 worklog
 
 ## 1) Add Monitoring to Your Systems
-TODO
+We use Grafana to create real-time dashboards that provide a visual representation of our system's metrics, making it easier to monitor and identify potential issues.
+
+Our Grafana dashboard is accessible at http://146.190.207.33:3000/, where you can view various metrics such as CPU and memory usage, network traffic, and response times. By monitoring these metrics, we can quickly identify and respond to any performance or availability issues before they impact our users.
 
 ## 2) Software Maintenance
 At the current time, there are no issuse present in our system based on the dashboard provided by Helge and the TA's.
