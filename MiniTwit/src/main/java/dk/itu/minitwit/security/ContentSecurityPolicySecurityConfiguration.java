@@ -1,4 +1,4 @@
-package dk.itu.minitwit.controller;
+package dk.itu.minitwit.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
