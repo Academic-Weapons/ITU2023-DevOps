@@ -79,7 +79,7 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_KEY_SWARM }}
           username: ${{ secrets.SSH_USER_SWARM }}
           host: ${{ secrets.SSH_HOST_SWARM }}
-          script: |
+          args: |
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
             docker stack deploy --compose-file docker-compose.yml minitwit
 
