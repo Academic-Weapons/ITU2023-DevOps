@@ -16,7 +16,9 @@
     <description>MiniTwit</description>
     <properties>
         <java.version>17</java.version>
-        <maven.compiler.target>11</maven.compiler.target>
+
+        <sonar.organization>academic-weapons</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
     <dependencies>
         <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
@@ -25,7 +27,7 @@
             <artifactId>commons-codec</artifactId>
             <version>1.15</version>
         </dependency>
-
+       
         <!--Web-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -36,6 +38,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <version>2.7.2</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -68,6 +71,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+            <version>2.7.2</version>
         </dependency>
 
         <!--Monitoring-->
@@ -81,11 +85,18 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Code covarge-->
+        <dependency>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.8.6</version>
+        </dependency>
 
     </dependencies>
 
     <build>
         <plugins>
+
             <plugin>
                 <groupId>org.graalvm.buildtools</groupId>
                 <artifactId>native-maven-plugin</artifactId>
@@ -93,6 +104,36 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.4.0.905</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.7</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>org/apache/commons/logging/Log</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>

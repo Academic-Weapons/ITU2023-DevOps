@@ -1,19 +1,15 @@
 package dk.itu.minitwit.database;
 
+import dk.itu.minitwit.controller.MiniTwitController;
 import dk.itu.minitwit.domain.Register;
 import dk.itu.minitwit.domain.SimData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class SQLite {
@@ -23,56 +19,53 @@ public class SQLite {
 
 
     private final String DATABASE_URL = "mysql://db-minitwit-do-user-13625042-0.b.db.ondigitalocean.com:25060/defaultdb?ssl-mode=REQUIRED";
-    private final boolean DEBUG = true;
-    private final String SECRET_KEY = "development key";
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-
+    Logger logger = LoggerFactory.getLogger(MiniTwitController.class);
 
 
      private Connection connectDb() throws SQLException, ClassNotFoundException {
-         Class.forName("com.mysql.jdbc.Driver");
-
+//         Class.forName("com.mysql.cj.jdbc.Driver");
          return DriverManager.getConnection("jdbc:" + DATABASE_URL, "doadmin", "AVNS_W7vkzWZhBrw3fUsgp71");
      }
 
 
 
-    public void initDb() throws SQLException {
-        try (Connection conn = connectDb()) {
-            List<String> schemaStatements = readSchemaStatements();
-            Statement statement = conn.createStatement();
-            for (String schemaStatement : schemaStatements) {
-                statement.executeUpdate(schemaStatement);
-            }
-            conn.commit();
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    public void initDb() throws SQLException {
+//        try (Connection conn = connectDb()) {
+//            List<String> schemaStatements = readSchemaStatements();
+//            Statement statement = conn.createStatement();
+//            for (String schemaStatement : schemaStatements) {
+//                statement.executeUpdate(schemaStatement);
+//            }
+//            conn.commit();
+//        } catch (ClassNotFoundException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
-    private List<String> readSchemaStatements() {
-        List<String> schemaStatements = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("schema.sql")))) {
-            StringBuilder statement = new StringBuilder();
-            for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-                if (!line.endsWith(";")) {
-                    statement.append(line).append("\n");
-                } else {
-                    statement.append(line);
-                    schemaStatements.add(statement.toString());
-                    statement = new StringBuilder();
-                }
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to read the schema.sql file", e);
-        }
-        return schemaStatements;
-    }
+//    private List<String> readSchemaStatements() {
+//        List<String> schemaStatements = new ArrayList<>();
+//        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("schema.sql")))) {
+//            StringBuilder statement = new StringBuilder();
+//            for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+//                if (!line.endsWith(";")) {
+//                    statement.append(line).append("\n");
+//                } else {
+//                    statement.append(line);
+//                    schemaStatements.add(statement.toString());
+//                    statement = new StringBuilder();
+//                }
+//            }
+//        } catch (IOException e) {
+//            throw new RuntimeException("Failed to read the schema.sql file", e);
+//        }
+//        return schemaStatements;
+//    }
 
-    public List<Map<String, Object>> queryDb(String query, List<Object> args) throws SQLException, ClassNotFoundException {
+    public List<Map<String, Object>> queryDb(String query, List<Object> args) throws SQLException {
         List<Map<String, Object>> result = new ArrayList<>();
         try (Connection conn = connectDb();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -88,20 +81,19 @@ public class SQLite {
                     result.add(row);
                 }
             }
+        } catch (ClassNotFoundException e) {
+            logger.error("Encountered error connecting to database: " +e.getMessage() + "\n"+ Arrays.toString(e.getStackTrace()));
         }
         return result;
     }
 
     public int updateDb(String query, List<Object> args) throws SQLException {
-        List<Map<String, Object>> result = new ArrayList<>();
         try (Connection conn = connectDb();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             for (int i = 0; i < args.size(); i++) {
                 stmt.setObject(i + 1, args.get(i));
             }
-
-            int rs = stmt.executeUpdate();
-            return rs;
+            return stmt.executeUpdate();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

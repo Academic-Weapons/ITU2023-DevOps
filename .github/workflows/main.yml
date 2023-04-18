@@ -16,7 +16,40 @@ on:
 # SSH_KEY
 # SSH_HOST
 
+
 jobs:
+  sonarqube:
+      name: SonarQube Trigger
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+          with:
+            fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+        - name: Set up JDK 11
+          uses: actions/setup-java@v3
+          with:
+            java-version: 11
+            distribution: 'zulu' # Alternative distribution options are available.
+        - name: Cache SonarCloud packages
+          uses: actions/cache@v3
+          with:
+            path: ~/.sonar/cache
+            key: ${{ runner.os }}-sonar
+            restore-keys: ${{ runner.os }}-sonar
+        - name: Cache Maven packages
+          uses: actions/cache@v3
+          with:
+            path: ~/.m2
+            key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+            restore-keys: ${{ runner.os }}-m2
+        - name: Analyze
+          working-directory: ./MiniTwit
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+            SONARQUBE_ORGANIZATION: ${{ secrets.SONARQUBE_ORGANIZATION }}
+          run: mvn sonar:sonar -Dsonar.organization=$SONARQUBE_ORGANIZATION -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN -Dsonar.java.binaries=target/sonar -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+
   build:
     runs-on: ubuntu-latest
 
@@ -39,68 +72,26 @@ jobs:
           context: ./MiniTwit
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/minitwitimage:latest
-        
- #     - name: Build and push mysqlimage
-  #      uses: docker/build-push-action@v2
-   #     with:
-    #      context: .
-     #     file: ./Dockerfile-mysql
-      #    push: true
-       #   tags: ${{ secrets.DOCKER_USERNAME }}/mysqlimage:latest
-        #  cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/mysqlimage:mysqlbuildcache
-         # cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/mysqlimage:mysqlbuildcache,mode=max
 
-#      - name: Build and push flagtoolimage
- #       uses: docker/build-push-action@v2
-  #      with:
-   #       context: .
-    #      file: ./Dockerfile-flagtool
-     #     push: true
-      #    tags: ${{ secrets.DOCKER_USERNAME }}/flagtoolimage:latest
-       #   cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/flagtoolimage:flagtoolbuildcache
-        #  cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/flagtoolimage:flagtoolbuildcache,mode=max
-
-#      - name: Test minitwit
- #       run: |
-  #        docker build -t $DOCKER_USERNAME/minitwittestimage -f Dockerfile-minitwit-tests .
-   #       yes 2>/dev/null | docker-compose up -d
-    #      docker run --rm --network=itu-minitwit-network $DOCKER_USERNAME/minitwittestimage
-     #   env:
-      #    DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-
-#      - name: Configure SSH
-#        run: |
-#          mkdir -p ~/.ssh/
-#          echo "$SSH_KEY" > ~/.ssh/minitwit.key
-#          chmod 600 ~/.ssh/minitwit.key
-#        env:
-#          SSH_KEY: ${{ secrets.SSH_KEY }}
-
-      - name: deployment
-        uses: appleboy/ssh-action@v0.1.8
+      - name: Deploy to Docker Swarm
+        uses: docker/ssh-action@v1
         with:
-          host: ${{ secrets.SSH_HOST }}
+          ssh-private-key: ${{ secrets.SSH_KEY }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            docker pull magmose1/minitwitimage:latest
-            docker stop minitwit || true && docker rm minitwit || true
-            docker run -d -p 8081:8080 --name minitwit magmose1/minitwitimage:latest
-            docker ps
-            
-            
-#      - name: Deploy to server
-#        # Configure the ~./bash_profile and deploy.sh file on the Vagrantfile
-#        run: |
-#          ssh -i ~/.ssh/minitwit.key $SSH_USER@$SSH_HOST -o StrictHostKeyChecking=no 
-#          whoami
-#          docker ps -a
-#          docker images
-#          docker pull magmose1/minitwitimage:latest
-#          docker ps
-          # docker stop minitwit
-          # docker rm minitwit
-#          docker run -d -p 8082:8080 --name mini3 magmose1/minitwitimage:latest
-#        env:
-#          SSH_USER: ${{ secrets.SSH_USER }}
-#          SSH_HOST: ${{ secrets.SSH_HOST }}
+          host: ${{ secrets.SSH_HOST }}
+          args: |
+            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+            docker stack deploy --compose-file docker-compose.yml minitwit
+      # - name: deployment
+      #   uses: appleboy/ssh-action@v0.1.8
+      #   with:
+      #     host: ${{ secrets.SSH_HOST }}
+      #     username: ${{ secrets.SSH_USER }}
+      #     key: ${{ secrets.SSH_KEY }}
+      #     script: |
+      #       docker pull magmose1/minitwitimage:latest
+      #       docker stop minitwit || true && docker rm minitwit || true
+      #       docker run -d -p 8081:8080 --name minitwit magmose1/minitwitimage:latest
+      #       docker ps
+
+      
