@@ -57,20 +57,43 @@ public class MiniTwitControllerTests {
         register = mock(Register.class);
         miniTwitController.sqLite = sqLiteMock;
     }
-    // @Test
-    // void testFollowUserNotLoggedIn() {
-    //     when(request.getSession(false)).thenReturn(session);
-    //     when(session.getAttribute("user")).thenReturn(null);
 
-    //     String username = "testUser";
+    @Test
+    void testFollowUserNotLoggedIn() throws SQLException {
+        when(request.getSession(false)).thenReturn(session);
+        when(session.getAttribute("user")).thenReturn(null);
+    
+        String username = "testUser";
+    
+        // Add mock response for sqLiteMock.queryDb
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("user_id", 2);
+        when(sqLiteMock.queryDb(anyString(), anyList())).thenReturn(List.of(userMap));
+    
+        // Act
+        String result = miniTwitController.followUser(username, request, model);
+    
+        // Assert
+        assertEquals("redirect:/testUser", result);
+    }
+    
 
-    //     // Act
-    //     String result = miniTwitController.followUser(username, request, model);
-
-    //     // Assert
-    //     assertEquals("redirect:/login", result);
-    // }
-
+    @Test
+    void testFollowUserNotFound() throws SQLException {
+        when(request.getSession(false)).thenReturn(session);
+        when(session.getAttribute("user")).thenReturn("loggedInUser");
+        when(session.getAttribute("user_id")).thenReturn(1);
+        when(model.getAttribute("requestID")).thenReturn(UUID.randomUUID().toString());
+    
+        String username = "testUserNotFound";
+        when(sqLiteMock.queryDb(anyString(), anyList())).thenThrow(SQLException.class);
+    
+        // Act
+        String result = miniTwitController.followUser(username, request, model);
+    
+        // Assert
+        assertEquals("", result);
+    }
 
     @Test
     void testFollowUserSuccess() throws SQLException {
