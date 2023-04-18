@@ -3,22 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <link th:href="@{/styles/style.css}" rel="stylesheet" type="text/css" href="/styles/style.css" media="all"/>
-    <!--    <title><!DOCTYPE html>-->
-    <!--        <html xmlns:th="http://www.thymeleaf.org">-->
-    <!--        <head>-->
-    <!--        <title th:if="${request.endpoint == 'public_timeline'}">Public Timeline</title>-->
-    <!--    <title th:if="${request.endpoint == 'user_timeline'}">-->
-    <!--        <span th:text="${profile_user.username}"></span>'s Timeline-->
-    <!--    </title>-->
-    <!--    <title th:if="${request.endpoint != 'public_timeline' and request.endpoint != 'user_timeline'}">-->
-    <!--        My Timeline-->
-    <!--    </title>-->
-
+    <link th:href="@{/static/favicon.ico}" rel="icon" type="image/x-icon" href="/static/favicon.ico" />
 </head>
 <body>
-<!--<div  th:insert="~{layout.html :: header}"></div>-->
-<!--<h2 th:text="Title" class="test"></h2>-->
-<!--<div th:if="${g.user}">-->
+
 
 
 <!--</div>-->
@@ -26,8 +14,9 @@
     <h1>MiniTwit</h1>
     <div class="navigation">
             <div th:if="${user != 'false'}">
-              <a th:href="@{/{user}(user=${user})}">my timeline</a> |
+              <a th:href="@{/}">my timeline</a> |
               <a th:href="@{/public}">public timeline</a> |
+              <a th:href="@{/favourites}">my favourites</a> |
               <a th:href="@{/logout}">sign out [<span th:text="${user}">Username</span>]</a>
             </div>
             <div th:if="${user == 'false'}">
@@ -80,7 +69,10 @@
                             </a>
                         </strong>
                         <span th:text="${message.text}"></span>
-                        <small>&mdash; <span th:text="${message.date_time}"></span></small>
+                        <small>&mdash; <span th:text="${message.date_time}"></span></small><br>
+                        <a th:if="${user != 'false'}" class="favourite" th:href="@{/addMessageToFavourites/{messageID}(messageID=${message.message_id})}"> 
+                            Add to favourites
+                        </a>
                     </p>
                 </li>
                 <li th:if="${messagesSize == 0}">

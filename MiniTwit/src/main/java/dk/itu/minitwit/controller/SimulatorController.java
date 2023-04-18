@@ -93,8 +93,6 @@ public class SimulatorController {
             return ResponseEntity.ok(messages);
         } catch (SQLException e) {
             return internalErrorResponse(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -217,7 +215,7 @@ public class SimulatorController {
             if (followsUserId == 0) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            int rs = sqLite.follow(userId, followsUserId);
+            sqLite.follow(userId, followsUserId);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (SQLException | ClassNotFoundException e) {
             return ResponseEntity.internalServerError().body(e);
@@ -253,7 +251,7 @@ public class SimulatorController {
             } else {
                 return ResponseEntity.ok().body(followersResponse);
             }
-        } catch (SQLException | ClassNotFoundException e) {
+        } catch (SQLException  e) {
 
             return ResponseEntity.internalServerError().body(e);
         }
