@@ -10,7 +10,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,6 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.ui.Model;
 
 import dk.itu.minitwit.database.SQLite;
+import dk.itu.minitwit.domain.AddMessage;
 import dk.itu.minitwit.domain.Login;
 import dk.itu.minitwit.domain.Register;
 import jakarta.servlet.http.HttpServletRequest;
@@ -58,68 +58,125 @@ public class MiniTwitControllerTests {
         miniTwitController.sqLite = sqLiteMock;
     }
 
-    // @Test
-    // public void testUnfollowUser_notLoggedIn() {
-    // // Arrange
-    // String username = "testUser";
+    @Test
+    void testFollowUserNotLoggedIn() throws SQLException {
+        when(request.getSession(false)).thenReturn(session);
+        when(session.getAttribute("user")).thenReturn(null);
+    
+        String username = "testUser";
+    
+        // Add mock response for sqLiteMock.queryDb
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("user_id", 2);
+        when(sqLiteMock.queryDb(anyString(), anyList())).thenReturn(List.of(userMap));
+    
+        // Act
+        String result = miniTwitController.followUser(username, request, model);
+    
+        // Assert
+        assertEquals("redirect:/testUser", result);
+    }
+    
 
-    // when(request.getSession(false)).thenReturn(session);
-    // when(model.getAttribute("requestID")).thenReturn(UUID.randomUUID().toString());
-    // when(session.getAttribute("user_id")).thenReturn(null);
+    @Test
+    void testFollowUserNotFound() throws SQLException {
+        when(request.getSession(false)).thenReturn(session);
+        when(session.getAttribute("user")).thenReturn("loggedInUser");
+        when(session.getAttribute("user_id")).thenReturn(1);
+        when(model.getAttribute("requestID")).thenReturn(UUID.randomUUID().toString());
+    
+        String username = "testUserNotFound";
+        when(sqLiteMock.queryDb(anyString(), anyList())).thenThrow(SQLException.class);
+    
+        // Act
+        String result = miniTwitController.followUser(username, request, model);
+    
+        // Assert
+        assertEquals("", result);
+    }
 
-    // // Act
-    // String notLoggedInTemplate = miniTwitController.unfollowUser(username,
-    // request, model);
+    @Test
+    void testFollowUserSuccess() throws SQLException {
+        when(request.getSession(false)).thenReturn(session);
+        when(session.getAttribute("user")).thenReturn("loggedInUser");
+        when(session.getAttribute("user_id")).thenReturn(1);
+        when(model.getAttribute("requestID")).thenReturn(UUID.randomUUID().toString());
 
-    // // Assert
-    // assertEquals("redirect:/login", notLoggedInTemplate);
-    // }
+        String username = "testUser";
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("user_id", 2);
+        when(sqLiteMock.queryDb(anyString(), anyList())).thenReturn(List.of(userMap));
 
-    // @Test
-    // public void testUnfollowUser_userNotFound() throws SQLException {
-    // // Arrange
-    // String username = "testUser";
-    // String userId = "1";
+        when(sqLiteMock.updateDb(anyString(), anyList())).thenReturn(1);
 
-    // when(request.getSession(false)).thenReturn(session);
-    // when(model.getAttribute("requestID")).thenReturn(UUID.randomUUID().toString());
-    // when(session.getAttribute("user_id")).thenReturn(userId);
-    // when(miniTwitController.getUserID(username)).thenReturn(null);
+        // Act
+        String result = miniTwitController.followUser(username, request, model);
 
-    // // Act
-    // String userNotFoundTemplate = miniTwitController.unfollowUser(username,
-    // request, model);
+        // Assert
+        assertEquals("redirect:/" + username, result);
+        verify(sqLiteMock, times(1)).updateDb(anyString(), anyList());
+    }
+    
+    
+    @Test
+    void testUnfollowUserLoggedIn() throws SQLException {
+        when(request.getSession(false)).thenReturn(session);
+        when(session.getAttribute("user")).thenReturn("loggedInUser");
+        when(session.getAttribute("user_id")).thenReturn(1);
+        when(model.getAttribute("requestID")).thenReturn(UUID.randomUUID().toString());
+    
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("user_id", 2);
+        when(sqLiteMock.queryDb(anyString(), anyList())).thenReturn(List.of(userMap));
+    
+        when(sqLiteMock.updateDb(anyString(), anyList())).thenReturn(1);
+    
+        // Act
+        String template = miniTwitController.unfollowUser("testUser", request, model);
+    
+        // Assert
+        assertEquals("redirect:/testUser", template);
+        verify(sqLiteMock, times(1)).updateDb(anyString(), anyList());
+    }
+    
+    
 
-    // // Assert
-    // assertEquals("redirect:/public", userNotFoundTemplate);
-    // }
+    
 
-    // @Test
-    // public void testUnfollowUser_success() throws SQLException {
-    // // Arrange
-    // String username = "testUser";
-    // String userId = "1";
-    // Integer whomId = 2;
+    @Test
+    void testAddMessageNotLoggedIn() {
+        when(request.getSession(false)).thenReturn(session);
+        when(model.getAttribute("requestID")).thenReturn(UUID.randomUUID().toString());
 
-    // when(request.getSession(false)).thenReturn(session);
-    // when(model.getAttribute("requestID")).thenReturn(UUID.randomUUID().toString());
-    // when(session.getAttribute("user_id")).thenReturn(userId);
-    // when(miniTwitController.getUserID(username)).thenReturn(whomId);
+        AddMessage text = new AddMessage(null);
+        text.setText("Test message");
 
-    // // Act
-    // String successTemplate = miniTwitController.unfollowUser(username, request,
-    // model);
+        // Act
+        String template = miniTwitController.addMessage(text, request, model);
 
-    // // Assert
-    // assertEquals("redirect:/" + username, successTemplate);
+        // Assert
+        assertEquals("redirect:/public", template);
+    }
 
-    // // Verify updateDb is called with the correct query and arguments
-    // List<Object> args = new ArrayList<>();
-    // args.add(userId);
-    // args.add(whomId);
-    // verify(sqLiteMock).updateDb("delete from follower where who_id=? and
-    // whom_id=?", args);
-    // }
+    @Test
+    void testAddMessageLoggedIn() throws SQLException {
+        when(request.getSession(false)).thenReturn(session);
+        when(session.getAttribute("user")).thenReturn("testUser");
+        when(session.getAttribute("user_id")).thenReturn(1);
+        when(model.getAttribute("requestID")).thenReturn(UUID.randomUUID().toString());
+
+        AddMessage text = new AddMessage(null);
+        text.setText("Test message");
+
+        when(sqLiteMock.updateDb(anyString(), anyList())).thenReturn(1);
+
+        // Act
+        String template = miniTwitController.addMessage(text, request, model);
+
+        // Assert
+        assertEquals("redirect:/public", template);
+        verify(sqLiteMock, times(1)).updateDb(anyString(), anyList());
+    }
 
     @Test
     void testAddMessageToFavouritesNotLoggedIn() {
