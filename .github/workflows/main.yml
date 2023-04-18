@@ -76,12 +76,13 @@ jobs:
       - name: Deploy to Docker Swarm
         uses: docker/ssh-action@v1
         with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
-          username: ${{ secrets.SSH_USER }}
-          host: ${{ secrets.SSH_HOST }}
+          ssh-private-key: ${{ secrets.SSH_KEY_SWARM }}
+          username: ${{ secrets.SSH_USER_SWARM }}
+          host: ${{ secrets.SSH_HOST_SWARM }}
           args: |
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
             docker stack deploy --compose-file docker-compose.yml minitwit
+            
       # - name: deployment
       #   uses: appleboy/ssh-action@v0.1.8
       #   with:
