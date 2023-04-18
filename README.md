@@ -21,7 +21,7 @@ In the [worklogs](https://github.com/Magmose/ITU2023-DevOps/tree/dev/worklogs) d
 
 ## Links
 - [Public timeline](http://146.190.207.33:public)
-- [Logging]()
+- [Logging](http://64.226.93.127:5601)
 - [Codeclimate](https://codeclimate.com/github/Academic-Weapons/ITU2023-DevOps)
 - [Sonarqube](https://sonarcloud.io/organizations/academic-weapons/projects)
 - [Security analysis](https://github.com/Magmose/ITU2023-DevOps/tree/dev/worklogs/session09/SecurityAnalysis.md)
