@@ -10,7 +10,7 @@ services:
       restart_policy:
         condition: any
     ports:
-      - "8081:8081"
+      - "8081:8080"
     networks:
       - webnet
 networks:
