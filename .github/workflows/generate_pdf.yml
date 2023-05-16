@@ -1,38 +1,38 @@
-name: Generate PDF
-
+name: Generate pdf report from LaTeX
 on:
   push:
     branches:
       - report
 
 jobs:
-  build:
+  generatepdf:
+    name: Generate PDF
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - name: Set up LaTeX
-      uses: xu-cheng/latex-action@v2
-      with:
-        root_file: report/main.tex
-    
-    - name: Install Inkscape
-      run: sudo apt-get install -y inkscape
+      - name: Generate PDF
+        run: |
+          docker run --rm -i --user="$(id -u):$(id -g)" --net=none -v "$PWD":/data blang/latex:ctanfull latexmk -pdf -shell-escape -outdir=/data/report /data/report/main.tex
 
-    - name: Compile LaTeX document
-      run: latexmk -pdf --shell-escape -output-directory=report report/main.tex
+  deploy_pdf:
+    name: Commit PDF
+    needs: generatepdf
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
 
-    - name: Move generated PDF
-      run: mv report/main.pdf report/MSc_group_a.pdf
+      - name: Setup Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
 
-    - name: Commit and push generated PDF
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git config --global user.name "GitHub Actions"
-        git add report/MSc_group_a.pdf
-        git commit -m "Automatically generated PDF from LaTeX files"
-        git push
+      - name: Commit PDF
+        run: |
+          git add report/main.pdf
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update PDF report"
+          git push
