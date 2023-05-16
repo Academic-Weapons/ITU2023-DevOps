@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - report2
-
+jobs:
   generatepdf:
     name: Generate PDF
     runs-on: ubuntu-latest
