@@ -22,7 +22,7 @@ jobs:
       run: sudo apt-get install -y inkscape
 
     - name: Compile LaTeX document
-      run: run: latexmk -pdf -shell-escape -output-directory=report report/main.tex
+      run: latexmk -pdf -shell-escape -output-directory=report report/main.tex
 
     - name: Move generated PDF
       run: mv report/main.pdf report/MSc_group_a.pdf
