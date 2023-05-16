@@ -1,5 +1,4 @@
----
-name: Generate pdf report from LaTex
+name: Generate pdf report from LaTeX
 on:
   push:
     branches:
@@ -15,7 +14,10 @@ jobs:
 
       - name: Generate PDF
         run: |
-          docker run --rm -i --user="$(id -u):$(id -g)" --net=none -v "$PWD":/data blang/latex:ctanfull latexmk -pdf -shell-escape -outdir=/report /data/report/main.tex
+          docker run --rm -i --user="$(id -u):$(id -g)" --net=none -v "$PWD":/data blang/latex:ctanfull latexmk -pdf -shell-escape -outdir=/data/report /data/report/main.tex
+
+      - name: List files in /report
+        run: ls -la ./report/
 
   deploy_pdf:
     name: Deploy PDF
