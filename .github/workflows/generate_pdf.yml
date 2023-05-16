@@ -3,12 +3,12 @@ name: Generate PDF from LaTeX
 on:
   push:
     branches:
-      - dev
+      - report
     paths:
       - 'report/main.tex'
   pull_request:
     branches:
-      - dev
+      - report
     paths:
       - 'report/main.tex'
 
