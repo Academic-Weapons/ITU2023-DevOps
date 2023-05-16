@@ -6,12 +6,7 @@ on:
       - report
     paths:
       - 'report/main.tex'
-  pull_request:
-    branches:
-      - report
-    paths:
-      - 'report/main.tex'
-
+      
 jobs:
   build:
     runs-on: ubuntu-latest
