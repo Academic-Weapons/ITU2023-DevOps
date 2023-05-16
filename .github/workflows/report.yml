@@ -5,6 +5,7 @@ on:
     branches:
       - report2
 
+jobs:
   generatepdf:
     name: Generate PDF
     runs-on: ubuntu-latest
@@ -17,7 +18,7 @@ on:
 
       - name: Generate PDF
         run: |
-          docker run --rm -i --user="$(id -u):$(id -g)" --net=none -v "$PWD": blang/latex:ctanfull latexmk -pdf -outdir=/report/build /report/main.tex
+          docker run --rm -i --user="$(id -u):$(id -g)" --net=none -v "$PWD":/data blang/latex:ctanfull latexmk -pdf -outdir=/data/report/build /data/report/main.tex
 
   deploy_pdf:
     name: Deploy PDF
@@ -31,4 +32,4 @@ on:
         uses: actions/upload-artifact@v3
         with:
           name: report
-          path: report/build/main.pdf
+          path: ./report/build/main.pdf
