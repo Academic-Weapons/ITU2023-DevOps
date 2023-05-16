@@ -1,4 +1,4 @@
-name: Generate PDF from LaTeX
+name: Generate report
 
 on:
   push:
@@ -33,5 +33,5 @@ jobs:
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add report/MSc_group_a.pdf
-
- 
+        git commit -m "Generated PDF from LaTeX" -a
+        git push
