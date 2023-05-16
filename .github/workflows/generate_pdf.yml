@@ -17,9 +17,12 @@ jobs:
       uses: xu-cheng/latex-action@v2
       with:
         root_file: report/main.tex
+    
+    - name: Install Inkscape
+      run: sudo apt-get install -y inkscape
 
     - name: Compile LaTeX document
-      run: latexmk -pdf -output-directory=report report/main.tex
+      run: run: latexmk -pdf -shell-escape -output-directory=report report/main.tex
 
     - name: Move generated PDF
       run: mv report/main.pdf report/MSc_group_a.pdf
