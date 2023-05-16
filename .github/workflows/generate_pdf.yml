@@ -2,7 +2,7 @@ name: Generate pdf report from LaTeX
 on:
   push:
     branches:
-      - report
+      - main
 
 jobs:
   generatepdf:
@@ -15,16 +15,6 @@ jobs:
       - name: Generate PDF
         run: |
           docker run --rm -i --user="$(id -u):$(id -g)" --net=none -v "$PWD":/data blang/latex:ctanfull latexmk -pdf -shell-escape -outdir=/data/report /data/report/main.tex
-
-  deploy_pdf:
-    name: Commit PDF
-    needs: generatepdf
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          persist-credentials: false
 
       - name: Setup Git
         run: |
