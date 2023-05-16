@@ -1,0 +1,42 @@
+name: Generate PDF from LaTeX
+
+on:
+  push:
+    branches:
+      - report
+    paths:
+      - 'report/main.tex'
+  pull_request:
+    branches:
+      - report
+    paths:
+      - 'report/main.tex'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v2
+
+    - name: Set up LaTeX
+      uses: dante-ev/latex-action@v1
+      with:
+        root_file: report/main.tex
+
+    - name: Compile LaTeX document
+      run: |
+        cd report
+        latexmk -pdf -jobname=MSc_group_a main.tex
+
+    - name: Move generated PDF
+      run: mv report/MSc_group_a.pdf report/MSc_group_a.pdf
+
+    - name: Commit and push the PDF
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add report/MSc_group_a.pdf
+        git commit -m "Generated PDF from LaTeX" -a
+        git push
