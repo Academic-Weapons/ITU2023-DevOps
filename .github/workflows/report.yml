@@ -16,8 +16,11 @@ jobs:
         run: |
           docker run --rm -i --user="$(id -u):$(id -g)" --net=none -v "$PWD":/data blang/latex:ctanfull latexmk -pdf -shell-escape -outdir=/data/report /data/report/main.tex
 
-      - name: List files in /report
-        run: ls -la ./report/
+      - name: Upload PDF
+        uses: actions/upload-artifact@v3
+        with:
+          name: report
+          path: ./report/main.pdf
 
   deploy_pdf:
     name: Deploy PDF
@@ -26,6 +29,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Download PDF
+        uses: actions/download-artifact@v3
+        with:
+          name: report
+          path: ./report/
 
       - name: Deploy PDF
         uses: actions/upload-artifact@v3
