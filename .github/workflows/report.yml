@@ -5,7 +5,7 @@ on:
     branches:
       - report2
 
-  generate_pdf:
+  generatepdf:
     name: Generate PDF
     runs-on: ubuntu-latest
     steps:
@@ -21,7 +21,7 @@ on:
 
   deploy_pdf:
     name: Deploy PDF
-    needs: generate_pdf
+    needs: generatepdf
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
