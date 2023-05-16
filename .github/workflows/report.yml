@@ -13,12 +13,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Create report directory
-        run: mkdir -p report/build
-
       - name: Generate PDF
         run: |
-          docker run --rm -i --user="$(id -u):$(id -g)" --net=none -v "$PWD":/data blang/latex:ctanfull latexmk -pdf -outdir=/data/report/build /data/report/main.tex
+          docker run --rm -i --user="$(id -u):$(id -g)" --net=none -v "$PWD":/data blang/latex:ctanfull latexmk -pdf -outdir=/data/report /data/report/main.tex
 
   deploy_pdf:
     name: Deploy PDF
@@ -32,4 +29,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: report
-          path: ./report/build/main.pdf
+          path: ./report/main.pdf
