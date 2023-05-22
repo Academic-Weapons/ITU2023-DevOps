@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - report2
+    paths-ignore:
+      - 'report/main.pdf'  # Prevent running the action when the pdf changes
 
 jobs:
   generatepdf:
@@ -34,10 +36,12 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: report
-          path: ./
+          path: ./report/
 
-      - name: Deploy PDF
-        uses: actions/upload-artifact@v3
-        with:
-          name: report
-          path: ./report/main.pdf
+      - name: Commit and push PDF
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add report/main.pdf
+          git commit -m "Add generated PDF"
+          git push
