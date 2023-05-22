@@ -41,12 +41,13 @@ jobs:
       - name: Set up Git credentials
         uses: webfactory/ssh-agent@v0.7.0
         with:
-          ssh-private-key: ${{ secrets.GH_PAT }}
+          ssh-private-key: ${{ secrets.GH_SSH_PRIVATE_KEY }}
 
       - name: Commit and push PDF
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
+          git remote set-url origin git@github.com:Academic-Weapons/ITU2023-DevOps.git
           git add report/main.pdf
           git commit -m "Add generated PDF"
           git push origin HEAD:report2 --follow-tags
