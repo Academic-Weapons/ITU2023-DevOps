@@ -2,7 +2,7 @@ name: Generate pdf report from LaTeX
 on:
   push:
     branches:
-      - report2
+      - dev
     paths-ignore:
       - 'report/main.pdf'  # Prevent running the action when the pdf changes
 
