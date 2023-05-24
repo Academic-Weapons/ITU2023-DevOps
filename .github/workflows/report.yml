@@ -14,12 +14,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up LaTeX
-        uses: dante-ev/latex-action@latest
-
       - name: Generate PDF
         run: |
-          latexmk -pdf -shell-escape -outdir=/data/report /data/report/main.tex
+          docker run --rm -i --user="$(id -u):$(id -g)" --net=none -v "$PWD":/data blang/latex:ctanfull latexmk -pdf -shell-escape -outdir=/data/report /data/report/main.tex
 
       - name: Upload PDF
         uses: actions/upload-artifact@v3
@@ -53,4 +50,4 @@ jobs:
           git remote set-url origin git@github.com:Academic-Weapons/ITU2023-DevOps.git
           git add report/main.pdf
           git commit -m "Add generated PDF"
-          git push origin HEAD:dev --follow-tags
+          git push origin HEAD:report2 --follow-tags
