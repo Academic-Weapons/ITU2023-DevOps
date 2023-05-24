@@ -14,6 +14,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Verify Biber installation
+        run: |
+          docker run --rm -i --user="$(id -u):$(id -g)" --net=none -v "$PWD":/data blang/latex:ctanfull which biber
+
       - name: Generate PDF
         run: |
           docker run --rm -i --user="$(id -u):$(id -g)" --net=none -v "$PWD":/data blang/latex:ctanfull latexmk -pdf -shell-escape -outdir=/data/report /data/report/main.tex
