@@ -9,7 +9,7 @@ Considering the system's integration of multiple technologies that required subs
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=1\textwidth]{images/system perspective/Screenshot 2023-05-23 141829.png}
+  \includegraphics[width=1\textwidth]{images/system_perspective/Screenshot 2023-05-23 141829.png}
   \caption{Technologies allocation. Red indicating external service/managed. Green indicates one VM pr. square hosted Digital Ocean.}
   \label{fig:1}
 \end{figure}
@@ -29,14 +29,14 @@ We incorporated Code Churn and SonarQube into our system by utilizing their resp
 Figure \ref{fig:2} illustrates how incoming traffic is managed in our application. As mentioned previously, we utilize an NGINX reverse proxy that acts as a load balancer, distributing data in a round-robin fashion to our Docker manager and workers. This approach guarantees an even distribution of the load among the nodes, which then forward it to the respective tasks which distribute it to the replicated containers. These containers are responsible for processing the incoming data, executing the necessary business logic, and storing it in the managed MySQL database.
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.60\textwidth]{images/system perspective/OverView1.png}
+  \includegraphics[width=0.60\textwidth]{images/system_perspective/OverView1.png}
   \caption{Component \& connector view - from incoming request to the system.}
   \label{fig:2}
 \end{figure}
 The logging and monitoring aspect, depicted in Figure \ref{fig:3}, showcases the communication within the system. It demonstrates how Prometheus interacts with the API exposed by the MiniTwit container to gather its metrics. This process occurs on a predetermined schedule, as Prometheus regularly checks for new metric data. Subsequently, Grafana retrieves the scraped data from Prometheus to create visualizations that provide us as developers with insights into the system's health and traffic.
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.65\textwidth]{images/system perspective/OverViewZoom1.png}
+  \includegraphics[width=0.65\textwidth]{images/system_perspective/OverViewZoom1.png}
   \caption{Component \& connector view - for scraping of metrics and logging.}
   \label{fig:3}
 \end{figure}

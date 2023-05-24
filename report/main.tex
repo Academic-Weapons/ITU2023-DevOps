@@ -1,5 +1,7 @@
 \documentclass{article}
-\usepackage[skip=5pt plus 1pt, indent=0pt]{parskip}
+% \usepackage[skip=5pt plus 1pt, indent=0pt]{parskip}
+\usepackage{parskip}
+\setlength{\parskip}{5pt plus 1pt}
 \usepackage{changepage}
 \usepackage{amsmath}
 \usepackage{graphicx}
@@ -24,20 +26,20 @@ citestyle=numeric,
 \begin{document}
 
 % Title Page
-\input{sections/title page/titlepage}
+\input{sections/title_page/titlepage}
 
 % Table of contents
 \tableofcontents
 \newpage
 
 % System perspective section
-\input{sections/system perspective/sys_perspective}
+\input{sections/system_perspective/sys_perspective}
 
 % Process perspective section
-\input{sections/process perspective/proc_perspective}
+\input{sections/process_perspective/proc_perspective}
 
 % Lessons section
-\input{sections/lessons learned/lessons}
+\input{sections/lessons_learned/lessons}
 
 \newpage
 \printbibliography
