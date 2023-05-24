@@ -14,7 +14,7 @@ Considering the system's integration of multiple technologies that required subs
   \label{fig:1}
 \end{figure}
 
-The ELK stack imposed significant demands on server specifications %\parencite{ELK}
+The ELK stack imposed significant demands on server specifications \cite{ELK}
 . Hence, we needed to carefully manage our costs to remain within a budget of \$200 per user. Consequently, we set up a separate Digital Ocean account for this purpose, allowing us to allocate a server that met the specific requirements of the ELK stack. Despite its high minimum specifications, the log traffic did not have a substantial impact on the server's performance since the minimum requirements were sufficient to handle the workload efficiently.
 
 Moreover, we made the decision to employ an additional server dedicated to Grafana and Prometheus. This choice aimed to efficiently and securely collect metrics from our Docker Swarm deployments. Additionally, this server served as a host for our developer container. Whenever a merge or push occurred in the development branch, the GitHub Action pipeline would automatically deploy a new container for testing purposes. This ensured that any changes were thoroughly evaluated before being rolled out in the production environment of our Docker Swarm.
@@ -147,5 +147,4 @@ This is likely due to the fact that our budget constraints have caused us to cho
 
 
 \subsection{License}
-Our MiniTiwit relies on Spring Boot, licensed under Apache 2.0, allowing users to use, distribute, copy, and modify it %\parencite{license}
-. The chosen MIT license is generally compatible with open-source licenses, and our open-source technologies align with its permissive nature. Thus, there are no conflicts with our direct dependencies' licenses.
+Our MiniTiwit relies on Spring Boot, licensed under Apache 2.0, allowing users to use, distribute, copy, and modify it \cite{license}. The chosen MIT license is generally compatible with open-source licenses, and our open-source technologies align with its permissive nature. Thus, there are no conflicts with our direct dependencies' licenses.
