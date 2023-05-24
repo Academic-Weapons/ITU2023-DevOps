@@ -87,7 +87,8 @@ As illustrated by the matrix, most of the risks identified would be of severe co
 \subsubsection{Pen-Testing}
 A small pen-testing operation was conducted to further give insight into the security of the system. As the application is exposed with a front-end, the pen-testing focused on this attack angle. 
 
-The primary tool used was OSWAP's Zap \parencite{zap}. Zap is capable of analyzing a website, giving a prioritized list of issues found. When run on our implementation of MiniTwit, no severe issues were identified. A Content Security Policy was implemented to remedy the majority of the lesser issues found.
+The primary tool used was OSWAP's Zap %\parencite{zap}
+. Zap is capable of analyzing a website, giving a prioritized list of issues found. When run on our implementation of MiniTwit, no severe issues were identified. A Content Security Policy was implemented to remedy the majority of the lesser issues found.
 
 Another pen-testing operation was conducted on our peer's implementation of MiniTwit. However, as their application was experiencing major issues, pen-testing with Zap proved impossible. As a result, a surface-level white-box security check, focused on password handling and database communication, was done instead. This yielded no immediate concerns, and the group was made aware of this.
 
@@ -101,6 +102,9 @@ To achieve load balancing, we employed NGINX reverse proxy, which effectively di
 \subsection{AI assistants}
 AI tools were used for 2 things throughout the project.
 \begin{itemize}
-    \item ChatGPT \parencite{chatgpt} was used for both inspiration and to check grammar when writing documentation for the weekly exercises. It was also used for debugging at various stages of development. 
-    \item GitHub Copilot \parencite{copilot} was used to assist us in writing unit tests.
+    \item ChatGPT 
+    %\parencite{chatgpt} 
+    was used for both inspiration and to check grammar when writing documentation for the weekly exercises. It was also used for debugging at various stages of development. 
+    \item GitHub Copilot %\parencite{copilot} 
+    was used to assist us in writing unit tests.
 \end{itemize}
