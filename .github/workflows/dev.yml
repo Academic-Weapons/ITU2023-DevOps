@@ -24,7 +24,7 @@ jobs:
 
       - name: Rename PDF
         run: |
-          mv /data/report/main.pdf /data/report/MSc_group_a.pdf
+          mv ./report/main.pdf ./report/MSc_group_a.pdf
 
       - name: Upload PDF
         uses: actions/upload-artifact@v3
