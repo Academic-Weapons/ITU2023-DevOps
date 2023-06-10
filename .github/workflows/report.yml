@@ -4,7 +4,7 @@ on:
     branches:
       - dev
     paths-ignore:
-      - 'report/MSc_group_a.pdf'  # Prevent running the action when the PDF changes
+      - 'report/MSc_group_a.pdf'  # Prevent running the action when the pdf changes
 
 jobs:
   generatepdf:
@@ -21,9 +21,6 @@ jobs:
       - name: Generate PDF
         run: |
           docker run --rm -i --user="$(id -u):$(id -g)" --net=none -v "$PWD":/data blang/latex:ctanfull latexmk -pdf -shell-escape -outdir=/data/report -f /data/report/main.tex
-
-      - name: Rename PDF
-        run: |
           mv ./report/main.pdf ./report/MSc_group_a.pdf
 
       - name: Upload PDF

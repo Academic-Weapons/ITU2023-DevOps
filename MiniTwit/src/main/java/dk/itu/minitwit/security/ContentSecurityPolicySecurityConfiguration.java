@@ -14,7 +14,7 @@ public class ContentSecurityPolicySecurityConfiguration {
         http.headers()
         .xssProtection()
         .and()
-        .contentSecurityPolicy("form-action 'self' always; default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; connect-src 'self'; img-src 'self' *.gravatar.com; frame-src 'none'; frame-ancestors 'none'; media-src 'none'; object-src 'none'; manifest-src 'none'; worker-src 'none'; prefetch-src 'none';");// form-action 'none' always;");
+        .contentSecurityPolicy("form-action 'self' always; default-src 'none'; script-src 'self'; style-src 'self' *.academicweapons.dk/*; font-src 'self'; connect-src 'self'; img-src 'self' *.gravatar.com; frame-src 'none'; frame-ancestors 'none'; media-src 'none'; object-src 'none'; manifest-src 'none'; worker-src 'none';");
         return http.build();
     }
     
