@@ -1,61 +1,80 @@
-name: Generate pdf report from LaTeX
+---
+name: Continuous Development
+
 on:
   push:
     branches:
       - dev
-    paths-ignore:
-      - 'report/MSc_group_a.pdf'  # Prevent running the action when the PDF changes
-
 jobs:
-  generatepdf:
-    name: Generate PDF
+  sonarqube:
+      name: SonarQube Trigger
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+          with:
+            fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+        - name: Set up JDK 11
+          uses: actions/setup-java@v3
+          with:
+            java-version: 11
+            distribution: 'zulu' # Alternative distribution options are available.
+        - name: Cache SonarCloud packages
+          uses: actions/cache@v3
+          with:
+            path: ~/.sonar/cache
+            key: ${{ runner.os }}-sonar
+            restore-keys: ${{ runner.os }}-sonar
+        - name: Cache Maven packages
+          uses: actions/cache@v3
+          with:
+            path: ~/.m2
+            key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+            restore-keys: ${{ runner.os }}-m2
+        - name: Analyze
+          working-directory: ./MiniTwit
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+            SONARQUBE_ORGANIZATION: ${{ secrets.SONARQUBE_ORGANIZATION }}
+          run: mvn sonar:sonar -Dsonar.organization=$SONARQUBE_ORGANIZATION -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN -Dsonar.java.binaries=target/sonar -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+
+
+  build:
     runs-on: ubuntu-latest
+
     steps:
+      # Fetch
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Verify Biber installation
-        run: |
-          docker run --rm -i --user="$(id -u):$(id -g)" --net=none -v "$PWD":/data blang/latex:ctanfull which biber
-
-      - name: Generate PDF
-        run: |
-          docker run --rm -i --user="$(id -u):$(id -g)" --net=none -v "$PWD":/data blang/latex:ctanfull latexmk -pdf -shell-escape -outdir=/data/report -f /data/report/main.tex
-
-      - name: Rename PDF
-        run: |
-          mv ./report/main.pdf ./report/MSc_group_a.pdf
-
-      - name: Upload PDF
-        uses: actions/upload-artifact@v3
+      # Build docker
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+    
+      # Dockerhub login
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
         with:
-          name: report
-          path: ./report/MSc_group_a.pdf
-
-  deploy_pdf:
-    name: Deploy PDF
-    needs: generatepdf
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Download PDF
-        uses: actions/download-artifact@v3
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      # Build docker image to dockerhub
+      - name: Build and push minitwitimage
+        uses: docker/build-push-action@v4
         with:
-          name: report
-          path: ./report/
+          context: ./MiniTwit
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/minitwitimagedev:latest
 
-      - name: Set up Git credentials
-        uses: webfactory/ssh-agent@v0.7.0
+      # Deploy to server
+      - name: DEVployment
+        uses: appleboy/ssh-action@v0.1.8
         with:
-          ssh-private-key: ${{ secrets.GH_SSH_PRIVATE_KEY }}
-
-      - name: Commit and push PDF
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git remote set-url origin git@github.com:Academic-Weapons/ITU2023-DevOps.git
-          git add report/MSc_group_a.pdf
-          git commit -m "Add generated PDF"
-          git push origin HEAD:dev --follow-tags
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            python3 ${{ secrets.TESTS_PATH }}
+            docker pull magmose1/minitwitimagedev:latest
+            docker stop minidev || true && docker rm minidev || true
+            docker run -d -p 8082:8080 --name minidev magmose1/minitwitimagedev:latest
+            docker ps
