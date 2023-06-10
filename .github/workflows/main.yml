@@ -80,8 +80,11 @@ jobs:
           username: ${{ secrets.SSH_USER_SWARM }}
           host: ${{ secrets.SSH_HOST_SWARM }}
           args: |
-            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-            docker stack deploy --compose-file docker-compose.yml minitwit
+              docker pull magmose1/minitwitimage:latest
+              docker service rm backend || true
+              docker service create -p 8080:8080 --name backend magmose1/minitwitimage:latest
+              docker ps
+
 
       # - name: deployment
       #   uses: appleboy/ssh-action@v0.1.8
