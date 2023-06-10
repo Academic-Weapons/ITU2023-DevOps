@@ -76,7 +76,7 @@ jobs:
       - name: Deploy to Docker Swarm
         uses: appleboy/ssh-action@v0.1.8
         with:
-          ssh-private-key: ${{ secrets.SSH_KEY_SWARM }}
+          key: ${{ secrets.SSH_KEY_SWARM }}
           username: ${{ secrets.SSH_USER_SWARM }}
           host: ${{ secrets.SSH_HOST_SWARM }}
           args: |
